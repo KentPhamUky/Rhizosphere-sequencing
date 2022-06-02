@@ -7,7 +7,7 @@ library(RColorBrewer)
 
 #sets working directory to target folder
 setwd("C:/Users/kentp/Documents/Github/Rhizosphere-sequencing/Wheat 2021") 
-
+setwd("D:/GitHub/Rhizosphere-sequencing/Wheat 2021")
 #reads ub the metadata
 data <- read_excel(path="phylum.xlsx")
 Distribution = ggplot(data, aes(fill=Phylum,y=Count, x=Treatment)) + 
@@ -21,7 +21,7 @@ Distribution = ggplot(data, aes(fill=Phylum,y=Count, x=Treatment)) +
         panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
         legend.key=element_blank()) +  
   labs(x = "Treatment", y = "Proportion (%)") +
-  ggtitle("Year 0 Phylum Community Distribution") + theme(plot.title = element_text(size=20, hjust = 0.5))
+  ggtitle("2021 Phylum Community Distribution") + theme(plot.title = element_text(size=20, hjust = 0.5))
 
 Distribution
 

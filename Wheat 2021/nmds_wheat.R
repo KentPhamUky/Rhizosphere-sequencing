@@ -7,7 +7,7 @@ library(RColorBrewer)
         
 #sets working directory to target folder
 setwd("C:/Mothur/Wheat 2021") 
-
+setwd("D:/GitHub/Rhizosphere-sequencing/Wheat 2021")
 #reads ub the metadata
 metadata <- read_excel(path="wheat metadata.xlsx")
 
@@ -43,7 +43,7 @@ plot = ggplot(metadata_nmds, aes(x = axis1, y = axis2))   +
   geom_point(size = 2, aes(  colour = as.factor(Treatment))) +
   theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
         axis.text.x = element_text(colour = "black", face = "bold", size = 12), 
-        legend.text = element_text(size = 12, face ="bold", colour ="black"), 
+        legend.text = element_text(size = 20, face ="bold", colour ="black"), 
         legend.position = "right", axis.title.y = element_text(face = "bold", size = 14), 
         axis.title.x = element_text(face = "bold", size = 14, colour = "black"), 
         legend.title = element_text(size = 14, colour = "black", face = "bold"), 
@@ -52,7 +52,9 @@ plot = ggplot(metadata_nmds, aes(x = axis1, y = axis2))   +
   labs(x = "NMDS1", colour = "Treatment", y = "NMDS2", shape = "Treatment")+ 
  geom_polygon(data = hull_make, alpha = 0.2, aes(fill = factor(Treatment)), show.legend = FALSE)  +
   #scale_color_brewer(palette = "Set3") + scale_fill_brewer(palette = "Set3") +
-  ggtitle("Year 0 Wheat Rhizosphere") + theme(plot.title = element_text(size=20, hjust = 0.5))
+  ggtitle("2021 Wheat Rhizosphere") + theme(plot.title = element_text(size=20, hjust = 0.5)) +
+  annotate(geom="text", x= -.30, y=-.35, label="Stress = 0.145",
+           color="red", size = 6)
   #scale_colour_manual(values = c("#009E73", "#E69F00"))  
 
 plot
