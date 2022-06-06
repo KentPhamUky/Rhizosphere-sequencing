@@ -71,11 +71,13 @@ ggsave("NMDS.tiff", height = 8, width = 10, units = "in")
 
 
 hull_make2 <- metadata_nmds %>%
-  group_by(combined) %>%
+  group_by(Treatment, combined) %>%
   slice(chull(axis1, axis2))
 
-plot2 = ggplot(metadata_nmds, aes(x = axis1, y = axis2))   +
-  geom_point(size = 2, aes(  colour = as.factor(Treatment), shape = Site) ) +
+hull_make2$Treatment = as.factor(hull_make2$Treatment)
+
+plot2 = ggplot(metadata_nmds, aes(x = axis1, y = axis2, color = as.factor(Treatment), shape = Site))   +
+  geom_point(size = 2 ) +
   theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
         axis.text.x = element_text(colour = "black", face = "bold", size = 12), 
         legend.text = element_text(size = 20, face ="bold", colour ="black"), 
@@ -85,7 +87,7 @@ plot2 = ggplot(metadata_nmds, aes(x = axis1, y = axis2))   +
         panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
         legend.key=element_blank()) +  
   labs(x = "NMDS1", colour = "Treatment", y = "NMDS2", shape = "Site")+ 
-  geom_polygon(data = hull_make2, alpha = 0.2, aes(fill = factor(Treatment)), show.legend = FALSE)  +
+  geom_polygon(data = hull_make2, alpha = 0.2, aes(fill = Treatment, colour = Treatment ), show.legend = FALSE)  +
   #scale_color_brewer(palette = "Set3") + scale_fill_brewer(palette = "Set3") +
   ggtitle("2020 Wheat Rhizosphere Microbial Community") + theme(plot.title = element_text(size=20, hjust = 0.5)) +
   annotate(geom="text", x= -.30, y=-.35, label="Stress = 0.145",
