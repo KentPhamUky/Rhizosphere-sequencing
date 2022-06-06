@@ -90,11 +90,11 @@ plot2 = ggplot(metadata_nmds, aes(x = axis1, y = axis2, color = as.factor(Treatm
   geom_polygon(data = hull_make2, alpha = 0.2, aes(fill = Treatment, colour = Treatment ), show.legend = FALSE)  +
   #scale_color_brewer(palette = "Set3") + scale_fill_brewer(palette = "Set3") +
   ggtitle("2020 Wheat Rhizosphere Microbial Community") + theme(plot.title = element_text(size=20, hjust = 0.5)) +
-  annotate(geom="text", x= -.30, y=-.35, label="Stress = 0.145",
+  annotate(geom="text", x= -.30, y=-.35, label="Stress = 0.145 \n Rsq = 0.911",
            color="red", size = 6) 
 
 plot2
-
+ggsave("NMDS better.tiff", height = 8, width = 10, units = "in")
 
 
 
