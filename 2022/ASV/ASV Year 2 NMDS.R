@@ -15,7 +15,7 @@ metadata <- read_excel(path="wheat metadata.xlsx")
 #metadata <- rename_all(.tbl=metadata, .funs=tolower)
 
 #read in the nmds axes
-nmds <- read_tsv(file="Mix.opti_mcc.0.03.subsample.thetayc.0.03.lt.ave.nmds.axes",
+nmds <- read_tsv(file="final.asv.ASV.subsample.thetayc.ASV.lt.ave.nmds.axes",
                  col_types = cols(group=col_character()))
 
 #if your metadata has "sample" as column title, this will be by=c('sample'='group') 
