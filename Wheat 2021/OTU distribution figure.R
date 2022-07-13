@@ -21,7 +21,7 @@ Distribution = ggplot(data, aes(fill=OTU,y=Count, x=Treatment)) +
         panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
         legend.key=element_blank()) +  
   labs(x = "Treatment", y = "Proportion (%)") +
-  ggtitle("Year 0 Top 10 OTU") + theme(plot.title = element_text(size=20, hjust = 0.5))
+  ggtitle("2020 OTU Community Distribution") + theme(plot.title = element_text(size=20, hjust = 0.5))
 
 Distribution
 
