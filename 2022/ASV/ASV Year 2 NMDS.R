@@ -7,7 +7,8 @@ library(RColorBrewer)
 library(plotly)
 #install.packages("rgl")
 library(rgl)        
-
+#install.packages("corpcor")
+library(corpcor)
 setwd("C:/Users/kentp/Documents/GitHub/Rhizosphere-sequencing/Wheat 2021")                  #sets working directory to target folder
 setwd("D:/GitHub/Rhizosphere-sequencing/2022/ASV")
 
@@ -105,11 +106,6 @@ plot3d(x=metadata_nmds_2020_UK$axis1, y=metadata_nmds_2020_UK$axis2, z=metadata_
 
 
 
-
-
-
-
-
 #Using plotly to map
 
 pal = c("blue", "red", "green", "pink", "purple", "cyan")
@@ -122,6 +118,23 @@ fig
 
 
 
+groups = unique(mn_2020$Treatment)
+groups = sort(groups, decreasing = FALSE)
+#levs = levels(groups) 
+for(i in 1:length(groups)){
+  group = groups[i]
+  selected = groups == group
+  xx = mn_2020$axis1[selected]; yy = mn_2020$axis2[selected]; zz = mn_2020$axis3[selected] 
+  co = cov(cbind(xx,yy,zz))
+  S = make.positive.definite(co)
+  ellipse = ellipse3d(co)
+  ellips = ellipse3d(S, centre = c(mean(xx),mean(yy), mean(zz)), level =0.95)
+  fig = add_trace(fig, x=ellipse$vb[1,], y= ellipse$vb[2,], z = ellipse$vb[3,],
+                  type = 'scatter3d', size = 1,
+                  opacity = 0.2,
+                  #color = pal[i],
+                  showlegend = FALSE)
+}
+fig
 
-
-
+#Currently creates a cloud plot. Figure out how to turn into actual shape
