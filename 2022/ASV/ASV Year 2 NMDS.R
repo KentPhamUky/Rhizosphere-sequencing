@@ -111,9 +111,9 @@ plot3d(x=metadata_nmds_2020_UK$axis1, y=metadata_nmds_2020_UK$axis2, z=metadata_
 pal = c("blue", "red", "green", "pink", "purple", "cyan")
 pal = setNames(pal, c("1", "2", "3", "4", "5", "6"))
 
-fig = plot_ly(mn_2020, x= ~axis1, y = ~axis2, z= ~axis3, color = ~Treatment, colors = pal,
+fig_2020 = plot_ly(mn_2020, x= ~axis1, y = ~axis2, z= ~axis3, color = ~Treatment, colors = pal,
               mode = 'markers', symbol = ~Site, symbols = c('x', 'o'), marker = list(size=5))
-fig
+fig_2020
 
 
 
@@ -129,12 +129,16 @@ for(i in 1:length(groups)){
   S = make.positive.definite(co)
   ellipse = ellipse3d(co)
   ellips = ellipse3d(S, centre = c(mean(xx),mean(yy), mean(zz)), level =0.95)
-  fig = add_trace(fig, x=ellipse$vb[1,], y= ellipse$vb[2,], z = ellipse$vb[3,],
-                  type = 'scatter3d', size = 1,
+  fig_2020 = add_trace(fig_2020, x=ellipse$vb[1,], y= ellipse$vb[2,], z = ellipse$vb[3,],
+                  type = 'mesh3d', size = 1,
                   opacity = 0.2,
                   #color = pal[i],
                   showlegend = FALSE)
 }
-fig
+fig_2020
 
+
+fig_2021 = plot_ly(mn_2021, x= ~axis1, y = ~axis2, z= ~axis3, color = ~Treatment, colors = pal,
+                   mode = 'markers', symbol = ~Site, symbols = c('x', 'o'), marker = list(size=5))
+fig_2021
 #Currently creates a cloud plot. Figure out how to turn into actual shape
