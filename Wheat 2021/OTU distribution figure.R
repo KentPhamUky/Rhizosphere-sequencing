@@ -8,7 +8,7 @@ library(RColorBrewer)
 #sets working directory to target folder
 setwd("C:/Users/kentp/Documents/Github/Rhizosphere-sequencing/Wheat 2021") 
 
-#reads ub the metadata
+#reads in the data
 data <- read_excel(path="OTU.xlsx")
 Distribution = ggplot(data, aes(fill=OTU,y=Count, x=Treatment)) + 
   geom_bar(position="fill", stat="identity", alpha = 0.7)+

@@ -70,7 +70,7 @@ plot2 = ggplot(metadata_nmds, aes(x = axis1, y = axis2, shape = Site, color = as
            color="red", size = 6)
 
 plot2
-ggsave("NMDS better.tiff", height = 8, width = 10, units = "in")
+ ggsave("NMDS better.tiff", height = 8, width = 10, units = "in")
 
 
 
