@@ -7,6 +7,7 @@ library(RColorBrewer)
         
 #sets working directory to target folder
 setwd("C:/Users/kentp/Documents/GitHub/Rhizosphere-sequencing/2022/OTU") 
+setwd("C:/Users/kdph224/Documents/GitHub/Rhizosphere-sequencing/2022/OTU")
 setwd("D:/GitHub/Rhizosphere-sequencing/2022/OTU")
 #reads ub the metadata
 metadata <- read_excel(path="wheat metadata.xlsx")
