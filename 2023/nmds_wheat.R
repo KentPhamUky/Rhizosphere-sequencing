@@ -7,10 +7,10 @@ library(RColorBrewer)
         
 #sets working directory to target folder
 setwd("C:/Users/kentp/Documents/GitHub/Rhizosphere-sequencing/2023") 
+setwd("C:/Users/kdph224/Documents/Github/Rhizosphere-sequencing/2023")
 setwd("D:/GitHub/Rhizosphere-sequencing/2023")
 #reads ub the metadata
-metadata <- read_excel(path="wheat metadata.xlsx")
-metadata2 <- read_excel(path="wheat metadata2.xlsx")
+metadata <- read_excel(path="wheat metadata2.xlsx")
 #renames items in metadata file
 #metadata <- rename_all(.tbl=metadata, .funs=tolower)
 
@@ -18,42 +18,9 @@ metadata2 <- read_excel(path="wheat metadata2.xlsx")
 nmds <- read_tsv(file="demi.thetayc.axes",
                  col_types = cols(group=col_character()))
 
-#if your metadata has "sample" as column title, this will be by=c('sample'='group') 
 metadata_nmds <- inner_join(metadata, nmds, by=c('group'))
 as.factor(metadata_nmds$Treatment)
 
-metadata_nmds2 <- inner_join(metadata2, nmds, by=c('group'))
-as.factor(metadata_nmds2$Treatment)
-#choose colors in color brewer, must be same number of colors as your catagory
-#color2 <- c("grey", "green",  "blue", "red", "yellow", "cyan")
-
-#if you want convex hulls
-
-#create a function to find hulls
-#find_hull <- function(df) df[chull(df$axis1, df$axis2), ]
-
-
-hull_make <- metadata_nmds %>%
-  group_by(Treatment) %>%
-  slice(chull(axis1, axis2))
-
-#if you don't need to filter
-
-#nmds_hulls <- ddply(metadata_nmds, "treatment", find_hull)
-
-#ggplot, no filter
-
-
-
-
-
-
-
-hull_make2 <- metadata_nmds %>%
-  group_by(Treatment) %>%
-  slice(chull(axis1, axis2))
-
-hull_make2$Treatment = as.factor(hull_make2$Treatment)
 
 plot2 = ggplot(metadata_nmds, aes(x = axis1, y = axis2, shape = Site, color = as.factor(Treatment)))   +
   geom_point(size = 2 ) +
@@ -66,8 +33,6 @@ plot2 = ggplot(metadata_nmds, aes(x = axis1, y = axis2, shape = Site, color = as
         panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
         legend.key=element_blank()) +  
   labs(x = "NMDS1", colour = "Treatment", y = "NMDS2", shape = "Site")+ 
-  geom_polygon(data = hull_make2, alpha = 0.2, aes(fill = Treatment, colour = Treatment ), show.legend = FALSE)  +
-  #scale_color_brewer(palette = "Set3") + scale_fill_brewer(palette = "Set3") +
   ggtitle("Spring 2023 Wheat Rhizosphere Microbial Community") + theme(plot.title = element_text(size=20, hjust = 0.5)) +
   annotate(geom="text", x= -.28, y=-.31, label="Stress = 0.151 \n Rsq = 0.911",
            color="black", size = 6)
