@@ -11,9 +11,9 @@ library(grid)
 metadata <- read_excel(path="Metadata2023.xlsx")
 
 #read in the nmds axes
-nmds <- read_tsv(file="demi.thetayc.axes",col_types = cols(group=col_character()))
+nmds <- read_tsv(file="Y3final.opti_mcc.0.03.subsample.thetayc.0.03.lt.nmds.axes",col_types = cols(group=col_character()))
 #Combine data
-metadata_nmds <- inner_join(metadata, nmds, by=c('group'))
+Wheat2023 <- inner_join(metadata, nmds, by=c('group'))
 as.factor(metadata_nmds$Treatment)
 ####end####
 
