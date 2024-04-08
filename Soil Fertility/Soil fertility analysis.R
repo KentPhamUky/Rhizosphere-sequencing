@@ -29,50 +29,6 @@ SoilsummaryKS
 
 
 
-
-
-
-
-
-mod <- lme(fixed = CO2_flux ~ factor(treatment)*factor(dap),
-           data = flux,
-           random = ~ 1|rep,
-           correlation = corAR1(form = ~ dap|rep/plots),
-           na.action = na.omit
-)
-
-anova(mod)
-mod
-summary(mod)
-plot(mod)
-qqPlot(resid(mod))
-hist(resid(mod))
-
-
-#this is doing the pairwise comparisons within each msmt_Day
-emm<-emmeans(mod, ~treatment|dap)
-emm<-emmeans(mod, ~treatment)
-emm <-emmeans(mod, ~dap)
-
-#this is getting the letters. 
-multcomp::cld(emm, Letters=LETTERS)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 one.waysoil.pH = aov(soil.pH ~ Site, data = Soildata)
 summary(one.waysoil.pH)
 one.waysoil.water.pH = aov(soil.water.pH ~ Site, data = Soildata)
@@ -100,6 +56,10 @@ one.wayZn = aov(Zn..kg.ha. ~ Site, data = Soildata)
 summary(one.wayZn)
 
 
+subset0to10 = subset(Soildata, `Soil Depth (cm)` == "0 to 10")
+subset10to20 = subset(Soildata, `Soil Depth (cm)` == "10to20")
 
+one.wayP = aov(`Zn (kg/ha)` ~ `Site`, data = subset0to10)
+summary(one.wayP)
 
 
