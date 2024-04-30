@@ -1,0 +1,1816 @@
+---
+title: "mm1_r4_concatonated"
+author: "Mary"
+date: "11/25/2023"
+output: html_document
+---
+
+Chunk 1 is taken from file mm1_r4_cleanup_stacked_barchart with modifications to remove excess code and comments.  It will produce two datasets one with the 4 outliers and one without. 
+```{r}
+
+library(ggplot2) # Graphing package used in phyloseq. To edit the default setting of a plot, you need to use functions in this package.
+
+library(phyloseq) # The phyloseq package seeks to address issues with multiple microbiome analysis packages by providing a set of functions that internally manage the organizing, linking, storing, and analyzing of phylogenetic sequencing data. In general, this package is used for UniFrac analyses.
+
+library(tidyverse) # This package is designed to make it easy to install and load multiple 'tidyverse' packages in a single step
+
+library(devtools) # Make package development easier by providing R functions that simplify and expedite common tasks
+
+library(qiime2R) # A package for importing qiime artifacts into an R session
+
+library(ggpubr) # publication quality figures, based on ggplot2
+
+library(RColorBrewer) # nice color options
+
+#library(microbiomeutilities) # some utility tools 
+
+library(microViz)
+
+library(viridis)
+
+library(ggpubr) # publication quality figures, based on ggplot2
+
+library(RColorBrewer) # nice color options
+
+library(ape)
+
+```
+
+Make a phylosq object and to veiw taxa with the negatives
+```{r}
+# Importing metadata
+metadata_negs <- read.table("~/Desktop/phyloseq_files_6.14.23/11.30.23_mussel_metadata.tsv", sep='\t', header=T, row.names=1)
+
+# Importing tree
+tree_phyloseq_negs <- qza_to_phyloseq(tree = "~/Desktop/phyloseq_files_6.14.23/11.30.23_rooted-tree.qza")
+
+
+# Importing taxonomy
+taxonomy_phyloseq_negs <- qza_to_phyloseq(taxonomy = "~/Desktop/phyloseq_files_6.14.23/taxonomy_11.30.23.qza")
+
+
+#Import ASVs (no negs)
+features_negs_phyloseq <- qza_to_phyloseq(features = "~/Desktop/phyloseq_files_6.14.23/11.30.23_table-bacteria_no_singles_100.qza")
+
+mussels_bacteria_negs = phyloseq(sample_data(metadata_negs), features_negs_phyloseq, tree_phyloseq_negs, taxonomy_phyloseq_negs)
+
+
+
+NEG <- subset_samples(mussels_bacteria_negs, Mussel_Species == "none")
+NEG  <- prune_taxa(taxa_sums(NEG) > 0, NEG)
+negs <-otu_get(NEG)
+negs
+capture.output(negs, file = "~/Desktop/negs_list.txt")
+
+#use qiime2 to remove the taxa from the positive negative control from the whole dataset and then rarefy the remaning dataset. 
+
+```
+
+
+
+
+```{r}
+#Make phyloseq objects without negative reads
+######################################bacteria with negs
+# Importing ASVs abundance file
+#bacteria_ASVs <- read_qza("~/Desktop/phyloseq_files_6.14.23/bacteria_average_rarefied_table.qza")
+# Importing metadata
+metadata <- read.table("~/Desktop/phyloseq_files_6.14.23/11.30.23_mussel_metadata.tsv", sep='\t', header=T, row.names=1)
+
+#metadata <- metadata[-1,] # remove the second line that specifies the data type
+# Importing tree
+tree_phyloseq <- qza_to_phyloseq(tree = "~/Desktop/phyloseq_files_6.14.23/11.30.23_rooted-tree.qza")
+
+
+# Importing taxonomy
+taxonomy_phyloseq <- qza_to_phyloseq(taxonomy = "~/Desktop/phyloseq_files_6.14.23/taxonomy_11.30.23.qza")
+
+#Import ASVs (no negs)
+features_phyloseq <- qza_to_phyloseq(features = "~/Desktop/phyloseq_files_6.14.23/11.30.23_rarefied_table.qza")
+
+mussels_bacteria_no_negs = phyloseq(sample_data(metadata), features_phyloseq, tree_phyloseq, taxonomy_phyloseq)
+
+#tax_fix_interactive(mussels_bacteria_no_negs)
+
+#The code below was copied from the inteactive website above - I chose 3 as min_lentgth because of taxa names like "TC1"
+mussels_bacteria_no_negs <- mussels_bacteria_no_negs %>%
+ tax_fix(
+  min_length = 3,
+  unknowns = c(""),
+  sep = " ", anon_unique = TRUE,
+  suffix_rank = "classified"
+ )
+
+
+mussels_bacteria_no_negs <- phyloseq_validate(mussels_bacteria_no_negs, remove_undetected = TRUE)
+#see above for taxa names < 4 warning
+
+#check to see if your tree is still rooted after removing taxa
+#https://www.bioconductor.org/packages/devel/bioc/vignettes/philr/inst/doc/philr-intro.html
+is.rooted(phy_tree(mussels_bacteria_no_negs))
+
+#check to see if the tree is binary (if it has polytomies at any nodes the answer will be false_
+is.binary(phy_tree(mussels_bacteria_no_negs))
+
+#if false, you'll want to turn the multichotomies into binary chains with length 0 using ape pacakage and assinge to new tree.
+#https://rdrr.io/cran/ape/man/multi2di.html
+#this ranomly collapses the pollytomies
+set.seed(13)
+mussels_bacteria_no_negs_B <- multi2di(phy_tree(mussels_bacteria_no_negs))
+#double check binary status of new tree
+is.binary(phy_tree(mussels_bacteria_no_negs_B))
+
+#Adding adjusted tree to the spot of the old tree
+#https://rdrr.io/bioc/phyloseq/man/assign-phy_tree.html
+
+
+phy_tree(mussels_bacteria_no_negs) <- mussels_bacteria_no_negs_B
+is.binary(phy_tree(mussels_bacteria_no_negs))
+identical(phy_tree(mussels_bacteria_no_negs), phy_tree(mussels_bacteria_no_negs_B))
+
+
+#dataset of just replicates, list is of who to keep
+
+replicates_list <-c("HPW424A", "HPW424B", "HPW425A", "HPW425B", "HPW426A", "HPW426B", "HPW430A", "HPW430B", "HPW431A", "HPW431B", "HPW715A", "HPW715B", "HPW717A", "HPW717B", "HPW719A", "HPW719B", "HPW720A", "HPW720B", "HPW977A", "HPW977B", "HPW978A", "HPW978B", "HPW979A", "HPW979B", "HPW980A", "HPW980B")
+replicate_data_bacteria <-prune_samples(replicates_list, mussels_bacteria_no_negs)
+replicate_data_bacteria  <- prune_taxa(taxa_sums(replicate_data_bacteria) > 0, replicate_data_bacteria)
+
+is.rooted(phy_tree(replicate_data_bacteria))
+is.binary(phy_tree(replicate_data_bacteria))
+
+library(metagMisc)
+phyloseq_coverage(replicate_data_bacteria, correct_singletons = FALSE, add_attr = T) %>% write.csv(file = "~/Desktop/phyloseq_files_6.14.23/replicate_coverage.csv")
+
+#remove the duplicate with the lowest coverage for the rest of the analysis
+no_replicates <-c("HPW397","HPW398", "HPW399", "HPW403", "HPW414", "HPW416", "HPW417", "HPW418", "HPW419", "HPW424B", "HPW425B","HPW426B","HPW430B", "HPW431A", "HPW434", "HPW435", "HPW436", "HPW437", "HPW438", "HPW43", "HPW446", "HPW44", "HPW450", "HPW453", "HPW455", "HPW456", "HPW458", "HPW460", "HPW462", "HPW474", "HPW475", "HPW477", "HPW478", "HPW492", "HPW493", "HPW516", "HPW517", "HPW518", "HPW520", "HPW521", "HPW522", "HPW661","HPW663", "HPW664", "HPW667", "HPW668", "HPW681", "HPW684", "HPW687", "HPW688", "HPW691", "HPW695", 
+"HPW703", "HPW704", "HPW705", "HPW706", "HPW707", "HPW709", "HPW710", "HPW715B", "HPW717A", "HPW719B" ,"HPW720B","HPW738", "HPW739", "HPW740", "HPW742", "HPW743", "HPW748", "HPW749", "HPW750", "HPW753", "HPW757", "HPW761", "HPW762", "HPW763", "HPW764", "HPW765", "HPW772", "HPW773", "HPW774", "HPW776", "HPW777", "HPW778", "HPW943", "HPW944", "HPW945", "HPW948", "HPW949", "HPW977A", "HPW978A", "HPW979A", "HPW980A", "HPW983")
+
+
+bacteria_no_replicates_no_negs_data <-prune_samples(no_replicates, mussels_bacteria_no_negs)
+bacteria_no_replicates_no_negs_data  <- prune_taxa(taxa_sums(bacteria_no_replicates_no_negs_data) > 0, bacteria_no_replicates_no_negs_data)
+
+coverage <- phyloseq_coverage(bacteria_no_replicates_no_negs_data, correct_singletons = FALSE, add_attr = T)
+write.csv(coverage, file = "~/Desktop/phyloseq_files_6.14.23/total_coverage.csv")
+summary(coverage)
+library(plotrix)
+std.error(coverage$SampleCoverage)
+sd(coverage$SampleCoverage)
+
+is.rooted(phy_tree(bacteria_no_replicates_no_negs_data))
+is.binary(phy_tree(bacteria_no_replicates_no_negs_data))
+
+
+
+# <!-- Remove 4 indivuals that are weird. -->
+# 
+# <!-- AVIR Robinson HPW664 -->
+# <!-- AVIR Robinson HPW663 -->
+# <!-- APLI Robinson HPW719B -->
+# <!-- CFLU Claysville HPW945 -->
+
+#assign pruned tree to 
+#https://rdrr.io/bioc/phyloseq/man/assign-phy_tree.html
+
+```
+
+Stacked Bar Charts
+```{r}
+bacteria_no_replicates_no_negs_data %>%
+  comp_barplot("Phylum", n_taxa = 10, merge_other = TRUE, label="Mussel_Species") +
+  facet_wrap(vars(Location), scales = "free") + # scales = "free" is IMPORTANT!
+  coord_flip() +
+  ggtitle(
+    "Top 10 Phylum Abundance by Mussel Speices and Location") +
+  theme(axis.ticks.y = element_blank(), strip.text = element_text(face = "bold"))
+
+#ggsave(filename = "~/Desktop/phyloseq_files_6.14.23/Images/Figure_2_Stacked.pdf",width = 12, height = 12, dpi = 300)
+
+#merge samples by location
+merged <- merge_samples(bacteria_no_replicates_no_negs_data, "Location")
+
+# Use psmelt to obtain a long-format data.frame, transform counts to relative abundance
+phy <- merged %>% tax_glom(taxrank = "Phylum") %>% transform_sample_counts(function(x) {x/sum(x)}) %>% psmelt()
+
+#subset data by location
+Rob <- subset(phy, Sample == "Robinson")
+Clay  <- subset(phy, Sample == "Claysville")
+#Open above to find percent abundance of bactiera at phylum level
+
+#Abundace at the phylum level
+
+
+phylum <- bacteria_no_replicates_no_negs_data %>% tax_glom(taxrank = "Phylum")
+#https://microbiome.github.io/tutorials/cleaning_taxonomy_table.html
+taxa <- as.data.frame(tax_table(phylum))
+taxa$row_names <- row.names(taxa)
+colnames(taxa)[8] ="OTU"
+
+otus_phylum <- (as.data.frame(otu_table(phylum)))
+otus_phylum$row_names <- row.names(otus_phylum)
+colnames(otus_phylum)[95] ="OTU"
+
+phylum_counts <- merge(x=otus_phylum,y=taxa, 
+                by="OTU")
+
+#https://stackoverflow.com/questions/3991905/sum-rows-in-data-frame-or-matrix
+phylum_counts$count <- rowSums(phylum_counts[2:95])
+phylum_counts$abundance <- (phylum_counts$count/(colSums(phylum_counts[103]))*100)
+
+
+```
+Stacked bar chart for duplicate samples
+```{r}
+
+replicate_data_bacteria  %>%
+  comp_barplot("Phylum", n_taxa = 10, merge_other = TRUE, label="SAMPLE") +
+  facet_wrap(vars(Mussel_Species), scales = "free") + # scales = "free" is IMPORTANT!
+  coord_flip() +
+  ggtitle(
+    "Top 10 Phylum Abundance of Duplicate Samples") +
+  theme(axis.ticks.y = element_blank(), strip.text = element_text(face = "bold"))
+
+#ggsave(file="~/Desktop/phyloseq_files_6.14.23/Images/Figure_S1_stacked.pdf", width = 12, height = 5, dpi = 300)
+
+
+```
+
+
+Alpha diversity species and locations
+```{r}
+
+#make data table of alpha diversities: https://rdrr.io/bioc/phyloseq/man/estimate_richness.html
+b <- estimate_richness(bacteria_no_replicates_no_negs_data, split = TRUE, measures = NULL)
+#convert row names to column  https://statisticsglobe.com/convert-row-names-into-column-of-data-frame-in-r
+b$sample_ID <- row.names(b) 
+metadata$sample_ID <- row.names(metadata)
+
+#left join alpha diversitis with meta data for graphing: https://sparkbyexamples.com/r-programming/how-to-do-left-join-in-r/
+
+alpha_data_b <- merge(x=b,y=metadata, by="sample_ID", all.x = TRUE)
+
+#Shannon Diversity Plot
+
+shannon_location_speices <- ggplot(alpha_data_b, aes(x=Location, y=Shannon, fill=Mussel_Species)) +
+  geom_boxplot(outlier.colour="black", outlier.shape=1,
+                outlier.size=2,  show.legend = FALSE)+
+     labs(title = "Shannon Diversity")+
+  theme(axis.title.x = element_blank())+
+  color_palette("Set2")+
+  theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1,size=12))+
+    theme(
+  # Hide panel borders and remove grid lines
+  panel.border = element_blank(),
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  # Change axis line
+  axis.line = element_line(colour = "black"))
+shannon_location_speices
+#ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Shannon_Bacteria_NO_NEGS_by_Species_and_Location.pdf", units="in", width=8, height=7, dpi=300) #-out on 8.9.23
+
+#to get Faith's PD
+library(metagMisc)
+library(PhyloMeasures)
+PD <-phyloseq_phylo_div(
+  bacteria_no_replicates_no_negs_data,
+  measures = c("PD")
+)
+PD$sample_ID <- row.names(PD) 
+alpha_data_b <- merge(x=alpha_data_b,y=PD, by="sample_ID", all.x = TRUE)
+
+#Faiths PD : https://rdrr.io/github/vmikk/metagMisc/man/phyloseq_phylo_div.html
+
+PD_location_species <- ggplot(alpha_data_b, aes(x=Location, y=PD, fill=Mussel_Species)) +
+  geom_boxplot(outlier.colour="black", outlier.shape=1,
+                outlier.size=2,  show.legend = FALSE)+
+     labs(title = "Phylodgenetic Diversity")+
+  theme(axis.title.x = element_blank())+
+  color_palette("Set2")+
+  theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1,size=12))+
+    theme(
+  # Hide panel borders and remove grid lines
+  panel.border = element_blank(),
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  # Change axis line
+  axis.line = element_line(colour = "black"))
+PD_location_species 
+#ggsave("~/Desktop/phyloseq_files_6.14.23/Images/PD_Bacteria_NO_NEGS_by_Species_and_Location.pdf", units="in", width=8, height=7, dpi=300)  #-out on 8.9.23
+
+Richness_location_speices <- ggplot(alpha_data_b, aes(x=Location, y=Observed, fill=Mussel_Species)) +
+  geom_boxplot(outlier.colour="black", outlier.shape=1,
+                outlier.size=2,  show.legend = FALSE)+
+     labs(title = "Richness")+
+  theme(axis.title.x = element_blank())+
+  color_palette("Set2")+
+  theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1,size=12))+
+    theme(
+  # Hide panel borders and remove grid lines
+  panel.border = element_blank(),
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  # Change axis line
+  axis.line = element_line(colour = "black"))
+Richness_location_speices 
+#ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Richness_Bacteria_NO_NEGS_by_Species_and_Location.pdf", units="in", width=8, height=7, dpi=300)  #-out on 8.9.23
+
+
+alphas_location_species <- ggarrange(Richness_location_speices, shannon_location_speices, PD_location_species,
+                                     ncol=1, nrow=3)
+
+#ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Figure_3_alphas.pdf", units="in", width=10, height=12, dpi=300)
+
+#for anova
+library(car)
+
+richness.lm<- lm(formula = Observed ~ Location * Mussel_Species, data = alpha_data_b)
+richness.anova <-anova(richness.lm)
+richness.anova
+as.data.frame(richness.anova) %>% write.csv(file = "~/Desktop/phyloseq_files_6.14.23/Richness_Anova_Table.csv")
+
+PD.lm<- lm(formula = PD ~ Location * Mussel_Species, data = alpha_data_b)
+PD.anova <-anova(PD.lm)
+PD.anova
+as.data.frame(PD.anova) %>% write.csv(file = "~/Desktop/phyloseq_files_6.14.23/Phylogenetic_Diversity_Anova_Table.csv")
+
+shannon_int.lm<- lm(formula = Shannon ~ Location * Mussel_Species, data = alpha_data_b)
+shannon_int.anova <-anova(shannon_int.lm)
+shannon_int.anova
+as.data.frame(shannon_int.anova) %>% write.csv(file = "~/Desktop/phyloseq_files_6.14.23/Shannon_Diversity_Anova_Table.csv")
+
+
+```
+
+beta diversity by tissue type and location
+Bray Curtis
+https://uw-madison-microbiome-hub.github.io/Microbiome_analysis_in-_R/
+```{r}
+physeq.ord <- ordinate(bacteria_no_replicates_no_negs_data, "PCoA", "bray")
+b.div.bray <- plot_ordination(bacteria_no_replicates_no_negs_data, physeq.ord, type= "Sample_ID", color= "Location", shape="Mussel_Species") + geom_point(size=5)
+b.div.bray <- b.div.bray  + ggtitle("Bray-Curtis PCoA by Location and Species")  + theme_classic() + scale_color_brewer("Location", palette = "Set2")
+
+b.div.bray
+#ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Bray_Curtis.pdf", units="in", width=10, height=12, dpi=300)
+
+
+#via vegan program
+
+library(vegan)
+library(ggplot2)
+library(dplyr)
+
+#make OTU table from phyloseq object
+otus <- (as.data.frame(otu_table(bacteria_no_replicates_no_negs_data)))
+otus_t <-t(otus)
+
+dist_bc<-vegdist(otus_t, method="bray") 
+
+#perform PCoA, make all egianvalues positive with a correction, https://uw.pressbooks.pub/appliedmultivariatestatistics/chapter/pcoa/
+bc_pcoa <-vegan::wcmdscale(dist_bc, eig=TRUE, k=10, add="cailliez", x.ret=TRUE)
+
+eigenvals(bc_pcoa) %>%
+  summary() -> ev1
+#axis 1 = 12.75%
+#axis 2 = 9.75%
+#axis 3 = 8.15%
+#Save coordinates to a new dataframe
+axes1 <- as.data.frame(as.matrix(scores(bc_pcoa)))
+#make row names the first column and name it "sample_id"
+axes1$row_names <- row.names(axes1)
+colnames(axes1)[11] ="Sample_ID"
+axes1$Sample_ID <-as.character(axes1$Sample_ID)
+
+
+#get metadata from phyloseq
+all_meta <- sample_data(bacteria_no_replicates_no_negs_data)
+all_meta$row_names <- row.names(all_meta)  
+rownames(all_meta)<-NULL
+all_meta <- all_meta[, c(8, 1, 2, 3,4, 5, 6, 7)]
+colnames(all_meta)[1] ="Sample_ID"
+
+#make dataframe with metadata and cooridantes
+pcoa_bc_data <- inner_join(axes1, all_meta, by="Sample_ID" )
+
+#plot the PCoA
+mussel_pc_pcoa_1_2 <-ggplot(pcoa_bc_data  , aes(x=Dim1, y=Dim2, shape=Mussel_Species, color=Location)) + geom_point(size=5) + ggtitle (label = "PCoA of Bray-Curtis Distances for Predicted Function Azes 1 & 2", subtitle = "by Location and Species")  + theme_classic() + scale_color_brewer("Location", palette = "Set2"
+)
+a1 <- mussel_pc_pcoa_1_2 + xlab("Axis 1 - 12.75%") + # for the x axis label
+ylab("Axis 2 - 9.75%") # for the y axis label
+
+#ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Bray_Curtis_V1&2.pdf", units="in", width=10, height=12, dpi=300)
+
+
+mussel_pc_pcoa_1_3 <-ggplot(pcoa_bc_data  , aes(x=Dim1, y=Dim3, shape=Mussel_Species, color=Location)) + geom_point(size=5) + ggtitle (label = "PCoA of Bray-Curtis Distances for Predicted Function Azes 1 & 3", subtitle = "by Location and Species")  + theme_classic() + scale_color_brewer("Location", palette = "Set2"
+)
+a2 <- mussel_pc_pcoa_1_3 + xlab("Axis 1 - 12.75%") + # for the x axis label
+ylab("Axis 3 - 8.15%") # for the y axis label
+
+#ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Bray_Curtis_V1&3.pdf", units="in", width=10, height=12, dpi=300)
+
+```
+
+
+Weighted Unifrac with rbiom
+
+```{r}
+#get a tree from a phyloseq object https://rdrr.io/bioc/phyloseq/man/phy_tree-methods.html
+tree <-(phy_tree(bacteria_no_replicates_no_negs_data))
+
+#make OTU table from phyloseq object
+otus <- (as.data.frame(otu_table(bacteria_no_replicates_no_negs_data)))
+
+#library(openxlsx)
+otu_m <- as.matrix(otus)
+#write.xlsx(otu_m, "~/Desktop/phyloseq_files_6.14.23/otu_matrix_11.24.23.xlsx")
+
+# rbiom
+rbiom_weighted = rbiom::unifrac(otu_m, weighted=TRUE, tree=tree)
+
+
+r_wu_mussel_pcoa <-vegan::wcmdscale(rbiom_weighted, k=5, eig=TRUE, add="cailliez", x.ret=TRUE)
+
+#https://rstudio-pubs-static.s3.amazonaws.com/474935_e7022180f415441b89b7b39a25360055.html
+#get eigenvalues and percent explained
+library(vegan)
+eigenvals(r_wu_mussel_pcoa ) %>%
+  summary() -> ev
+ev
+
+axes_r <- as.data.frame(as.matrix(scores(r_wu_mussel_pcoa)))
+axes_r$row_names <- row.names(axes_r)
+colnames(axes_r)[6] ="Sample_ID"
+
+
+#all_meta is from section above this
+
+wu_pcoa_data <- inner_join(axes_r, all_meta, by="Sample_ID")
+
+
+wu_mussel_pcoa1 <-ggplot(wu_pcoa_data, aes(x=Dim1, y=Dim2, shape=Mussel_Species, color=Location)) + geom_point(size=5) + ggtitle("Weighted Unifrac by Location and Species Axes 1 & 2")  + theme_classic() + scale_color_brewer("Location", palette = "Set2") + xlab("Axis 1 - 18.88%") + ylab("Axis 2 - 9.52%")+
+scale_y_reverse()
+wu_mussel_pcoa1
+ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Weighted_Unifrac_axes_1&2.pdf", units="in", width=10, height=12, dpi=300)
+
+
+
+
+beta_location_species <- ggarrange(a1, wu_mussel_pcoa1,
+                                     ncol=1, nrow=2)
+beta_location_species
+
+ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Figure_4_betas.pdf", units="in", width=12, height=14, dpi=300)
+
+wu_mussel_pcoa2 <-ggplot(wu_pcoa_data, aes(x=Dim1, y=Dim3, shape=Mussel_Species, color=Location)) + geom_point(size=5) + ggtitle("Weighted Unifrac by Location and Species Axes 1 & 3")  + theme_classic() + scale_color_brewer("Location", palette = "Set2") + xlab("Axis 1 - 18.88%") + ylab("Axis 3 - 9.48%")+
+scale_y_reverse()
+wu_mussel_pcoa2
+ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Weighted_Unifrac_axes_1&3.pdf", units="in", width=10, height=12, dpi=300)
+
+
+#For 3D plot showing first 3 axis
+t <- list(
+  family = "Courier New",
+  size = 14,
+  color = "blue")
+t1 <- list(
+  family = "Times New Roman",
+  color = "red"
+)
+t2 <- list(
+  family = "Courier New",
+  size = 14,
+  color = "green")
+t3 <- list(family = 'Arial')
+
+library(plotly)
+Three_D_fig <- plot_ly(x=wu_pcoa_data$Dim1, y=wu_pcoa_data$Dim2, z=wu_pcoa_data$Dim3, type="scatter3d", mode="markers", color=wu_pcoa_data$Mussel_Species) %>%
+  layout(title = list(text = "Weighted Unifrac by Location in 3 Dimentions", font = t1), font=t, legends = list(title=list(text="MusselSpecies", font =t2)), xaxis= list(title=list(text="Axis 1 - 17.60%", font = t3)), yaxis=list(title=list(text="Axis 2 - 10.61%", font=t3)), zaxis=list(title=list(text="Axis 3 - 9.48%", font=t3)))
+Three_D_fig
+#save this using the export function - rotate to what you like visually
+
+
+#duplicates
+rep_physeq.ord <- ordinate(replicate_data_bacteria, "PCoA", "bray")
+rep_b.div.bray <- plot_ordination(replicate_data_bacteria , rep_physeq.ord, label = "Pair", type= "samples", color= "Location", shape="Mussel_Species") + geom_point(size=3)
+rep_b.div.bray <- rep_b.div.bray  + ggtitle("Bray-Curtis PCoA - Replicates")  + theme_classic() + scale_color_brewer("Location", palette = "Set2")
+
+rep_b.div.bray
+
+#ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Figure_S2_BC.pdf", units="in", width=10, height=4, dpi=300)
+```
+
+statistics
+```{r}
+#beta diversity 
+
+#https://uw.pressbooks.pub/appliedmultivariatestatistics/chapter/complex-models/
+
+library(microbiome) 
+
+Y = rbiom_weighted 
+
+#to get metadata from phyloseq object using microbiome package
+dat = meta(bacteria_no_replicates_no_negs_data)
+#write.csv(dat, file = "~/Desktop/phyloseq_files_6.14.23/meta_data_11.24.23.csv")
+
+#Are there differences in location? and Are there differences between the species within one location? 
+
+stat <- adonis2(Y~Location * Mussel_Species, dat, permutations = 9999)
+stat
+sink(file = "~/Desktop/phyloseq_files_6.14.23/adonis_Location_X_Speices.txt")
+stat
+sink(file = NULL)
+summary(stat)
+
+
+stat1 <- adonis2(Y~Location + Location:Mussel_Species, dat, permutations = 9999)
+stat1
+sink(file = "~/Desktop/phyloseq_files_6.14.23/adonis_Location_L_Speices.txt")
+stat1
+sink(file = NULL)
+
+
+
+#Sys.setenv("R_REMOTES_NO_ERRORS_FROM_WARNINGS"=TRUE)
+#install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis", force=TRUE)
+
+library(pairwiseAdonis)
+#Which locations are different when only comparing the same species between locations
+pairwise_location <-pairwise.adonis2(Y ~ Location, strata = "Mussel_Species", data = dat)
+sink(file = "~/Desktop/phyloseq_files_6.14.23/pairwise_locations_output.txt")
+pairwise_location
+sink(file = NULL)
+
+#pairwise_location_ns <-pairwise.adonis2(Y ~ Location, data = dat)
+#sink(file = "~/Desktop/phyloseq_files_6.14.23/pairwise_locations_ns_output.txt")
+#pairwise_location_ns
+#sink(file = NULL)
+
+
+pairwise_species <-pairwise.adonis2(Y ~ Mussel_Species, strata = "Location", data = dat)
+sink(file = "~/Desktop/phyloseq_files_6.14.23/pairwise_species_output.txt")
+pairwise_species
+sink(file = NULL)
+
+#pairwise_species_ns <-pairwise.adonis2(Y ~ Mussel_Species, data = dat)
+#sink(file = "~/Desktop/phyloseq_files_6.14.23/pairwise_species_ns_output.txt")
+#pairwise_species_ns
+#sink(file = NULL)
+
+```
+
+
+alig:claysvill
+
+apli:robinson
+
+lsil:stoner creek
+```{r}
+
+#get a tree from a phyloseq object https://rdrr.io/bioc/phyloseq/man/phy_tree-methods.html
+tree_d <-(phy_tree(replicate_data_bacteria))
+
+#make OTU table from phyloseq object
+otus_d <- (as.data.frame(otu_table(replicate_data_bacteria)))
+
+#library(openxlsx)
+otu_m_d <- as.matrix(otus_d)
+#write.xlsx(otu_m, "~/Desktop/phyloseq_files_6.14.23/otu_matrix_11.24.23.xlsx")
+
+# rbiom
+rbiom_weighted_d = rbiom::unifrac(otu_m_d, weighted=TRUE, tree=tree_d)
+
+
+wu_mussel_pcoa_d <-vegan::wcmdscale(rbiom_weighted_d, k=5, eig=TRUE, add="cailliez", x.ret=TRUE)
+
+#https://rstudio-pubs-static.s3.amazonaws.com/474935_e7022180f415441b89b7b39a25360055.html
+#get eigenvalues and percent explained
+library(vegan)
+eigenvals(wu_mussel_pcoa_d) %>%
+  summary() -> ev_d
+ev_d
+#axis 1 = 63.54
+#axis 2 = 17.12
+
+axes_d <- as.data.frame(as.matrix(scores(wu_mussel_pcoa_d)))
+axes_d$row_names <- row.names(axes_d)
+colnames(axes_d)[6] ="Sample_ID"
+
+
+
+#get metadata from phyloseq
+all_meta_d <- sample_data(replicate_data_bacteria)
+all_meta_d$row_names <- row.names(all_meta_d)  
+rownames(all_meta_d)<-NULL
+all_meta_d <- all_meta_d[, c(8, 1, 2, 3,4, 5, 6, 7)]
+colnames(all_meta_d)[1] ="Sample_ID"
+
+
+
+wu_pcoa_data_d <- inner_join(axes_d, all_meta_d, by="Sample_ID")
+
+
+wu_mussel_pcoa_d <-ggplot(wu_pcoa_data_d, aes(x=Dim1, y=Dim2, shape=Pair, color=Mussel_Species)) + geom_point(size=5) + ggtitle("Weighted Unifrac - Duplicate Samples")  + theme_classic() + scale_color_brewer("Species", palette = "Accent") + xlab("Axis 1 - 63.54%") + ylab("Axis 2 - 17.12%")+
+scale_y_reverse()+
+scale_fill_discrete(labels=c('ALIG/Claysville', 'APLI/Robinson', 'LSIL/Stoner Creek'))
+
+wu_mussel_pcoa_d
+
+
+ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Figure_S2_WU.pdf", units="in", width=6, height=4, dpi=300)
+
+
+
+
+
+
+
+
+
+
+LSIL <- subset_samples(mussels_bacteria_no_negs, Mussel_Species == "LSIL")
+
+LSIL_Stoner_Creek <- subset_samples(LSIL, Location == "Stoner Creek")
+
+LSIL_tree <-(phy_tree(LSIL_Stoner_Creek))
+
+#make OTU table from phyloseq object
+otus_LSIL <- (as.data.frame(otu_table(LSIL_Stoner_Creek)))
+
+library(openxlsx)
+otu_m_LSIL <- as.matrix(otus_LSIL)
+#write.xlsx(otu_m, "~/Desktop/phyloseq_files_6.14.23/otu_matrix_11.24.23.xlsx")
+
+# rbiom
+rbiom_weighted_LSIL = rbiom::unifrac(otu_m_LSIL, weighted=TRUE, tree=LSIL_tree)
+LSIL_Matirx <-as.data.frame(as.matrix(rbiom_weighted_LSIL))
+library(openxlsx)
+write.xlsx(LSIL_Matirx, "~/Desktop/phyloseq_files_6.14.23/LSIL_matirx.xlsx")
+
+#ALIG
+ALIG <- subset_samples(mussels_bacteria_no_negs, Mussel_Species == "ALIG")
+
+ALIG_Claysville <- subset_samples(ALIG, Location == "Claysville")
+
+ALIG_tree <-(phy_tree(ALIG_Claysville))
+
+#make OTU table from phyloseq object
+otus_ALIG <- (as.data.frame(otu_table(ALIG_Claysville)))
+
+otu_m_ALIG <- as.matrix(otus_ALIG)
+
+# rbiom
+rbiom_weighted_ALIG = rbiom::unifrac(otu_m_ALIG, weighted=TRUE, tree=ALIG_tree)
+ALIG_Matirx <-as.data.frame(as.matrix(rbiom_weighted_ALIG))
+
+write.xlsx(ALIG_Matirx, "~/Desktop/phyloseq_files_6.14.23/ALIG_matirx.xlsx")
+
+#APLI
+APLI <- subset_samples(mussels_bacteria_no_negs, Mussel_Species == "APLI")
+
+APLI_Robinson <- subset_samples(APLI, Location == "Robinson")
+
+APLI_tree <-(phy_tree(APLI_Robinson))
+
+#make OTU table from phyloseq object
+otus_APLI <- (as.data.frame(otu_table(APLI_Robinson)))
+
+
+otu_m_APLI <- as.matrix(otus_APLI)
+
+# rbiom
+rbiom_weighted_APLI = rbiom::unifrac(otu_m_APLI, weighted=TRUE, tree=APLI_tree)
+APLI_Matirx <-as.data.frame(as.matrix(rbiom_weighted_APLI))
+
+write.xlsx(APLI_Matirx, "~/Desktop/phyloseq_files_6.14.23/APLI_matirx.xlsx")
+
+```
+
+Core Microbiomes
+```{r}
+
+taxa_names(bacteria_no_replicates_no_negs_data) <- 1:ntaxa(bacteria_no_replicates_no_negs_data)
+taxa_names(bacteria_no_replicates_no_negs_data)
+
+taxa_names(bacteria_no_replicates_no_negs_data) <- paste("OTU-", taxa_names(bacteria_no_replicates_no_negs_data), sep="")
+taxa_names(bacteria_no_replicates_no_negs_data)
+
+
+#https://microbiome.github.io/tutorials/Core.html
+#Make dataset for core microbiome analysis and transform them into abundance
+
+library(microbiome)
+
+sample_variables(bacteria_no_replicates_no_negs_data)
+ALIG <- subset_samples(bacteria_no_replicates_no_negs_data, Mussel_Species == "ALIG")
+sample_names(ALIG)
+
+PGRA <- subset_samples(bacteria_no_replicates_no_negs_data, Mussel_Species == "PGRA")
+sample_names(PGRA)
+
+LSIL <- subset_samples(bacteria_no_replicates_no_negs_data, Mussel_Species == "LSIL")
+sample_names(LSIL)
+
+CFLU <- subset_samples(bacteria_no_replicates_no_negs_data, Mussel_Species == "CFLU")
+sample_names(CFLU)
+
+AVIR <- subset_samples(bacteria_no_replicates_no_negs_data, Mussel_Species == "AVIR")
+sample_names(AVIR)
+
+APLI <- subset_samples(bacteria_no_replicates_no_negs_data, Mussel_Species == "APLI")
+sample_names(APLI)
+
+ALIG.rel <- microbiome::transform(ALIG, "compositional")
+PGRA.rel <- microbiome::transform(PGRA, "compositional")
+LSIL.rel <- microbiome::transform(LSIL, "compositional")
+CFLU.rel <- microbiome::transform(CFLU, "compositional")
+AVIR.rel <- microbiome::transform(AVIR, "compositional")
+APLI.rel <- microbiome::transform(APLI, "compositional")
+
+Butler <- subset_samples(bacteria_no_replicates_no_negs_data, Location == "Butler")
+sample_names(Butler)
+
+Robinson <- subset_samples(bacteria_no_replicates_no_negs_data, Location == "Robinson")
+sample_names(Robinson)
+
+Claysville <- subset_samples(bacteria_no_replicates_no_negs_data, Location == "Claysville")
+sample_names(Claysville)
+
+Fox_Creek <- subset_samples(bacteria_no_replicates_no_negs_data, Location == "Fox Creek")
+sample_names(Fox_Creek)
+
+Stoner_Creek <- subset_samples(bacteria_no_replicates_no_negs_data, Location == "Stoner Creek")
+sample_names(Stoner_Creek)
+
+Slate_Creek <- subset_samples(bacteria_no_replicates_no_negs_data, Location == "Slate Creek")
+sample_names(Slate_Creek)
+
+Milford <- subset_samples(bacteria_no_replicates_no_negs_data, Location == "Milford")
+sample_names(Milford)
+
+Butler.rel <- microbiome::transform(Butler, "compositional")
+
+Robinson.rel <- microbiome::transform(Robinson, "compositional")
+Claysville.rel <- microbiome::transform(Claysville, "compositional")
+Fox_Creek.rel <- microbiome::transform(Fox_Creek, "compositional")
+Stoner_Creek.rel <- microbiome::transform(Stoner_Creek, "compositional")
+Slate_Creek.rel <- microbiome::transform(Slate_Creek, "compositional")
+Milford.rel <- microbiome::transform(Milford, "compositional")
+```
+
+
+ci
+You need this function to run the following section.  THis will allow you to attach the taxa names to the OTU ID
+
+Make sure to change "Domain" to "Kingdom"
+```{r}
+add_besthit <- function(x, sep=":"){
+  
+  Class<-Kingdom<- Family<- Genus<- Genus.Species<- NULL
+  Order<- Phylum<- Species<-NULL
+  
+  x.nw <- x
+  if(length(rank_names(x.nw))== 6){
+    colnames(tax_table(x.nw)) <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+  }
+  if(length(rank_names(x.nw))==7){
+    colnames(tax_table(x.nw)) <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
+  }
+  
+  tax.tib <- .get_taxa_tib_unite(x)
+  
+  tax.tib <- tax.tib %>% 
+    dplyr::mutate(Kingdom =ifelse(is.na(Kingdom), "Unclassifed", Kingdom),
+                  Phylum =ifelse(is.na(Phylum), Kingdom, Phylum),
+                  Class =ifelse(is.na(Class), Phylum, Class),
+                  Order =ifelse(is.na(Order), Class, Order),
+                  Family =ifelse(is.na(Family), Order, Family),
+                  Genus =ifelse(is.na(Genus), Family, Genus)) 
+  if(length(rank_names(x))==7){
+    tax.tib <- tax.tib %>%
+      dplyr::mutate(Species =ifelse(is.na(Species), Genus, Species))
+  }
+  
+  best_hit <- paste0(taxa_names(x), sep,tax.tib[,ncol(tax.tib)])
+  
+  taxa_names(x) <- best_hit
+  return(x)
+}
+
+
+
+.get_taxa_tib_unite <- function(x){
+  
+  Genus<- Species <- Genus.Species<- NULL
+  tax.tib <- tax_table(x) %>% 
+    as.matrix() %>% 
+    as.data.frame() 
+  
+  #n.rk <- length(rank_names(x))
+  if(any(rank_names(x) == "Species") && any(rank_names(x) == "Genus")){
+    
+    tax.tib <- tax.tib %>% 
+      dplyr::mutate(Genus.Species = ifelse(!is.na(Species), 
+                                           paste0(Genus, ".", Species), Species)) %>%
+      dplyr::select(-Species) %>%
+      dplyr::rename(Species = Genus.Species)
+    
+  }
+  return(tax.tib)
+}
+
+
+```
+
+#https://microbiome.github.io/tutorials/Core.html
+```{r}
+
+#change ASV ID to taxa names
+tax_table(ALIG.rel)[tax_table(ALIG.rel) == "d__"] <- NA
+tax_table(ALIG.rel)[tax_table(ALIG.rel) == "p__"] <- NA
+tax_table(ALIG.rel)[tax_table(ALIG.rel) == "c__"] <- NA
+tax_table(ALIG.rel)[tax_table(ALIG.rel) == "o__"] <- NA
+tax_table(ALIG.rel)[tax_table(ALIG.rel) == "f__"] <- NA
+tax_table(ALIG.rel)[tax_table(ALIG.rel) == "g__"] <- NA
+tax_table(ALIG.rel)[tax_table(ALIG.rel) == "s__"] <- NA
+
+tax_table(ALIG.rel)[, colnames(tax_table(ALIG.rel))] <- gsub(tax_table(ALIG.rel)[, colnames(tax_table(ALIG.rel))],  pattern = "[a-z]__", replacement = "")
+ALIG.rel2 <- add_besthit(ALIG.rel)
+taxa_names(ALIG.rel2 )[1:10]
+
+ALIG.rel2.gen <- aggregate_taxa(ALIG.rel2, "Genus")
+
+# ALIG.rel2.fam <- aggregate_taxa(ALIG.rel2, "Family")
+# ALIG.rel2.fam <- subset_taxa(ALIG.rel2.fam, Family!="Unknown")
+
+
+
+ALIG.core.mem <- core_members(ALIG.rel2.gen, detection = 0.0001, prevalence = 99/100)
+ALIG.core.mem
+ALIG.core <- core(ALIG.rel2.gen, detection = 0.0001, prevalence = 99/100)
+ALIG.core
+ALIG.core.taxa <- taxa(ALIG.core)
+ALIG.core.taxa
+class(ALIG.core.taxa)
+tax.mat <- tax_table(ALIG.core)
+tax.df <- as.data.frame(tax.mat)
+tax.df$OTU <- rownames(tax.df)
+core.taxa.class <- dplyr::filter(tax.df, rownames(tax.df) %in% ALIG.core.taxa)
+ALIG_core_table <-knitr::kable(head(core.taxa.class))
+ALIG_core_table
+
+
+
+
+#define bins for heatmap
+prevalences <- seq(.05, 1, .05)
+detections <- round(10^seq(log10(1e-3), log10(.2), length = 10), 3)
+gray <- gray(seq(0,1,length=5))
+p <- plot_core(ALIG.core, plot.type = "heatmap",
+           colours = rev(brewer.pal(5, "Spectral")),           
+               prevalences = prevalences,
+           detections = detections
+           ) +
+    labs(x = "Detection Threshold")+
+  ggtitle("ALIG Core Microbiome")
+p
+
+ggsave("~/Desktop/phyloseq_files_6.14.23/Images/ALIG_core.pdf", units="in", width=9, height=21, dpi=300)
+```
+PGRA
+```{r}
+#change ASV ID to taxa names
+tax_table(PGRA.rel)[tax_table(PGRA.rel) == "d__"] <- NA
+tax_table(PGRA.rel)[tax_table(PGRA.rel) == "p__"] <- NA
+tax_table(PGRA.rel)[tax_table(PGRA.rel) == "c__"] <- NA
+tax_table(PGRA.rel)[tax_table(PGRA.rel) == "o__"] <- NA
+tax_table(PGRA.rel)[tax_table(PGRA.rel) == "f__"] <- NA
+tax_table(PGRA.rel)[tax_table(PGRA.rel) == "g__"] <- NA
+tax_table(PGRA.rel)[tax_table(PGRA.rel) == "s__"] <- NA
+
+tax_table(PGRA.rel)[, colnames(tax_table(PGRA.rel))] <- gsub(tax_table(PGRA.rel)[, colnames(tax_table(PGRA.rel))],  pattern = "[a-z]__", replacement = "")
+PGRA.rel2 <- add_besthit(PGRA.rel)
+taxa_names(PGRA.rel2 )[1:100]
+
+PGRA.rel2.gen <- aggregate_taxa(PGRA.rel2, "Genus")
+
+
+PGRA.core.mem <- core_members(PGRA.rel2.gen, detection = 0.0001, prevalence = 99/100)
+PGRA.core.mem
+PGRA.core <- core(PGRA.rel2.gen, detection = 0.0001, prevalence = .99)
+PGRA.core
+PGRA.core.taxa <- taxa(PGRA.core)
+class(PGRA.core.taxa)
+tax.mat <- tax_table(PGRA.core)
+tax.df <- as.data.frame(tax.mat)
+tax.df$OTU <- rownames(tax.df)
+core.taxa.class <- dplyr::filter(tax.df, rownames(tax.df) %in% PGRA.core.taxa)
+PGRA_core_table <-knitr::kable(head(core.taxa.class))
+PGRA_core_table
+
+
+
+
+prevalences <- seq(.05, 1, .05)
+detections <- round(10^seq(log10(1e-3), log10(.2), length = 10), 3)
+gray <- gray(seq(0,1,length=5))
+p <- plot_core(PGRA.core, plot.type = "heatmap",
+           colours = rev(brewer.pal(5, "Spectral")),           
+               prevalences = prevalences,
+           detections = detections
+           ) +
+    labs(x = "Detection Threshold") +
+  ggtitle("PGRA Core Microbiome")
+p
+
+ggsave("~/Desktop/phyloseq_files_6.14.23/Images/PGRA_core.pdf", units="in", width=12, height=15, dpi=300)
+
+```
+
+LSIL
+```{r}
+#change ASV ID to taxa names
+tax_table(LSIL.rel)[tax_table(LSIL.rel) == "d__"] <- NA
+tax_table(LSIL.rel)[tax_table(LSIL.rel) == "p__"] <- NA
+tax_table(LSIL.rel)[tax_table(LSIL.rel) == "c__"] <- NA
+tax_table(LSIL.rel)[tax_table(LSIL.rel) == "o__"] <- NA
+tax_table(LSIL.rel)[tax_table(LSIL.rel) == "f__"] <- NA
+tax_table(LSIL.rel)[tax_table(LSIL.rel) == "g__"] <- NA
+tax_table(LSIL.rel)[tax_table(LSIL.rel) == "s__"] <- NA
+
+tax_table(LSIL.rel)[, colnames(tax_table(LSIL.rel))] <- gsub(tax_table(LSIL.rel)[, colnames(tax_table(LSIL.rel))],  pattern = "[a-z]__", replacement = "")
+LSIL.rel2 <- add_besthit(LSIL.rel)
+taxa_names(LSIL.rel2 )[1:100]
+
+LSIL.rel2.gen <- aggregate_taxa(LSIL.rel2, "Genus")
+
+
+LSIL.core.mem <- core_members(LSIL.rel2.gen, detection = 0.0001, prevalence = 99/100)
+LSIL.core.mem
+LSIL.core <- core(LSIL.rel2.gen, detection = 0.0001, prevalence = .99)
+LSIL.core
+LSIL.core.taxa <- taxa(LSIL.core)
+class(LSIL.core.taxa)
+tax.mat <- tax_table(LSIL.core)
+tax.df <- as.data.frame(tax.mat)
+tax.df$OTU <- rownames(tax.df)
+core.taxa.class <- dplyr::filter(tax.df, rownames(tax.df) %in% LSIL.core.taxa)
+LSIL_core_table <-knitr::kable(head(core.taxa.class))
+LSIL_core_table
+
+
+
+
+prevalences <- seq(.05, 1, .05)
+detections <- round(10^seq(log10(1e-3), log10(.2), length = 10), 3)
+gray <- gray(seq(0,1,length=5))
+p <- plot_core(LSIL.core, plot.type = "heatmap",
+           colours = rev(brewer.pal(5, "Spectral")),           
+               prevalences = prevalences,
+           detections = detections
+           ) +
+    labs(x = "Detection Threshold") +
+  ggtitle("LSIL Core Microbiome")
+p
+
+ggsave("~/Desktop/phyloseq_files_6.14.23/Images/LSIL_core.pdf", units="in", width=12, height=12, dpi=300)
+
+
+```
+
+CFLU
+```{r}
+#change ASV ID to taxa names
+tax_table(CFLU.rel)[tax_table(CFLU.rel) == "d__"] <- NA
+tax_table(CFLU.rel)[tax_table(CFLU.rel) == "p__"] <- NA
+tax_table(CFLU.rel)[tax_table(CFLU.rel) == "c__"] <- NA
+tax_table(CFLU.rel)[tax_table(CFLU.rel) == "o__"] <- NA
+tax_table(CFLU.rel)[tax_table(CFLU.rel) == "f__"] <- NA
+tax_table(CFLU.rel)[tax_table(CFLU.rel) == "g__"] <- NA
+tax_table(CFLU.rel)[tax_table(CFLU.rel) == "s__"] <- NA
+
+tax_table(CFLU.rel)[, colnames(tax_table(CFLU.rel))] <- gsub(tax_table(CFLU.rel)[, colnames(tax_table(CFLU.rel))],  pattern = "[a-z]__", replacement = "")
+CFLU.rel2 <- add_besthit(CFLU.rel)
+taxa_names(CFLU.rel2 )[1:100]
+
+CFLU.rel2.gen <- aggregate_taxa(CFLU.rel2, "Genus")
+
+# CFLU.rel2.fam <- aggregate_taxa(CFLU.rel2, "Family")
+# CLUF.rel2.fam <- subset_taxa(CFLU.rel2.fam, Family!="Unknown")
+
+
+CFLU.core.mem <- core_members(CFLU.rel2.gen, detection = 0.0001, prevalence = 99/100)
+CFLU.core.mem
+CFLU.core <- core(CFLU.rel2.gen, detection = 0.0001, prevalence = .99)
+CFLU.core
+CFLU.core.taxa <- taxa(CFLU.core)
+class(CFLU.core.taxa)
+tax.mat <- tax_table(CFLU.core)
+tax.df <- as.data.frame(tax.mat)
+tax.df$OTU <- rownames(tax.df)
+core.taxa.class <- dplyr::filter(tax.df, rownames(tax.df) %in% CFLU.core.taxa)
+CFLU_core_table <-knitr::kable(head(core.taxa.class))
+CFLU_core_table
+
+#No core found for CFLU
+
+
+
+prevalences <- seq(.05, 1, .05)
+detections <- round(10^seq(log10(1e-3), log10(.2), length = 10), 3)
+gray <- gray(seq(0,1,length=5))
+p <- plot_core(CFLU.core, plot.type = "heatmap",
+           colours = rev(brewer.pal(5, "Spectral")),
+               prevalences = prevalences,
+           detections = detections
+           ) +
+    labs(x = "Detection Threshold") +
+  ggtitle("CFLU Core Microbiome")
+p
+
+ggsave("~/Desktop/phyloseq_files_6.14.23/CFLU_core.pdf", units="in", width=12, height=2, dpi=300)
+# #change ASV ID to taxa names
+
+```
+
+AVIR
+```{r}
+#change ASV ID to taxa names
+tax_table(AVIR.rel)[tax_table(AVIR.rel) == "d__"] <- NA
+tax_table(AVIR.rel)[tax_table(AVIR.rel) == "p__"] <- NA
+tax_table(AVIR.rel)[tax_table(AVIR.rel) == "c__"] <- NA
+tax_table(AVIR.rel)[tax_table(AVIR.rel) == "o__"] <- NA
+tax_table(AVIR.rel)[tax_table(AVIR.rel) == "f__"] <- NA
+tax_table(AVIR.rel)[tax_table(AVIR.rel) == "g__"] <- NA
+tax_table(AVIR.rel)[tax_table(AVIR.rel) == "s__"] <- NA
+
+tax_table(AVIR.rel)[, colnames(tax_table(AVIR.rel))] <- gsub(tax_table(AVIR.rel)[, colnames(tax_table(AVIR.rel))],  pattern = "[a-z]__", replacement = "")
+AVIR.rel2 <- add_besthit(AVIR.rel)
+taxa_names(AVIR.rel2 )[1:100]
+
+AVIR.rel2.gen <- aggregate_taxa(AVIR.rel2, "Genus")
+
+
+
+AVIR.core.mem <- core_members(AVIR.rel2.gen, detection = 0.0001, prevalence = 99/100)
+AVIR.core.mem
+AVIR.core <- core(AVIR.rel2.gen, detection = 0.0001, prevalence = .99)
+AVIR.core
+AVIR.core.taxa <- taxa(AVIR.core)
+class(AVIR.core.taxa)
+tax.mat <- tax_table(AVIR.core)
+tax.df <- as.data.frame(tax.mat)
+tax.df$OTU <- rownames(tax.df)
+core.taxa.class <- dplyr::filter(tax.df, rownames(tax.df) %in% AVIR.core.taxa)
+AVIR_core_table <-knitr::kable(head(core.taxa.class))
+AVIR_core_table
+
+
+
+
+prevalences <- seq(.05, 1, .05)
+detections <- round(10^seq(log10(1e-3), log10(.2), length = 10), 3)
+gray <- gray(seq(0,1,length=5))
+p <- plot_core(AVIR.core, plot.type = "heatmap",
+           colours = rev(brewer.pal(5, "Spectral")),           
+               prevalences = prevalences,
+           detections = detections
+           ) +
+    labs(x = "Detection Threshold") +
+  ggtitle("AVIR Core Microbiome")
+p
+
+ggsave("~/Desktop/phyloseq_files_6.14.23/AVIR_core.pdf", units="in", width=12, height=3, dpi=300)
+
+
+
+```
+
+APLI
+```{r}
+#change ASV ID to taxa names
+tax_table(APLI.rel)[tax_table(APLI.rel) == "d__"] <- NA
+tax_table(APLI.rel)[tax_table(APLI.rel) == "p__"] <- NA
+tax_table(APLI.rel)[tax_table(APLI.rel) == "c__"] <- NA
+tax_table(APLI.rel)[tax_table(APLI.rel) == "o__"] <- NA
+tax_table(APLI.rel)[tax_table(APLI.rel) == "f__"] <- NA
+tax_table(APLI.rel)[tax_table(APLI.rel) == "g__"] <- NA
+tax_table(APLI.rel)[tax_table(APLI.rel) == "s__"] <- NA
+
+tax_table(APLI.rel)[, colnames(tax_table(APLI.rel))] <- gsub(tax_table(APLI.rel)[, colnames(tax_table(APLI.rel))],  pattern = "[a-z]__", replacement = "")
+APLI.rel2 <- add_besthit(APLI.rel)
+taxa_names(APLI.rel2 )[1:100]
+
+APLI.rel2.gen <- aggregate_taxa(APLI.rel2, "Genus")
+
+
+APLI.core.mem <- core_members(APLI.rel2.gen, detection = 0.0001, prevalence = 99/100)
+APLI.core.mem
+APLI.core <- core(APLI.rel2.gen, detection = 0.0001, prevalence = .99)
+APLI.core
+APLI.core.taxa <- taxa(APLI.core)
+class(APLI.core.taxa)
+tax.mat <- tax_table(APLI.core)
+tax.df <- as.data.frame(tax.mat)
+tax.df$OTU <- rownames(tax.df)
+core.taxa.class <- dplyr::filter(tax.df, rownames(tax.df) %in% APLI.core.taxa)
+APLI_core_table <-knitr::kable(head(core.taxa.class))
+APLI_core_table
+
+
+
+
+prevalences <- seq(.05, 1, .05)
+detections <- round(10^seq(log10(1e-3), log10(.2), length = 10), 3)
+gray <- gray(seq(0,1,length=5))
+p <- plot_core(APLI.core, plot.type = "heatmap",
+           colours = rev(brewer.pal(5, "Spectral")),           
+               prevalences = prevalences,
+           detections = detections
+           ) +
+    labs(x = "Detection Threshold") +
+  ggtitle("APLI Core Microbiome")
+p
+
+ggsave("~/Desktop/phyloseq_files_6.14.23/APLI_core.pdf", units="in", width=12, height=4, dpi=300)
+
+```
+
+
+Locations
+Robinson
+```{r}
+
+#change ASV ID to taxa names
+tax_table(Robinson.rel)[tax_table(Robinson.rel) == "d__"] <- NA
+tax_table(Robinson.rel)[tax_table(Robinson.rel) == "p__"] <- NA
+tax_table(Robinson.rel)[tax_table(Robinson.rel) == "c__"] <- NA
+tax_table(Robinson.rel)[tax_table(Robinson.rel) == "o__"] <- NA
+tax_table(Robinson.rel)[tax_table(Robinson.rel) == "f__"] <- NA
+tax_table(Robinson.rel)[tax_table(Robinson.rel) == "g__"] <- NA
+tax_table(Robinson.rel)[tax_table(Robinson.rel) == "s__"] <- NA
+
+tax_table(Robinson.rel)[, colnames(tax_table(Robinson.rel))] <- gsub(tax_table(Robinson.rel)[, colnames(tax_table(Robinson.rel))],  pattern = "[a-z]__", replacement = "")
+Robinson.rel2 <- add_besthit(Robinson.rel)
+taxa_names(Robinson.rel2 )[1:100]
+
+Robinson.rel2.gen <- aggregate_taxa(Robinson.rel2, "Genus")
+
+
+Robinson.core.mem <- core_members(Robinson.rel2.gen, detection = 0.0001, prevalence = 99/100)
+Robinson.core.mem
+Robinson.core <- core(Robinson.rel2.gen, detection = 0.0001, prevalence = .99)
+Robinson.core
+Robinson.core.taxa <- taxa(Robinson.core)
+class(Robinson.core.taxa)
+tax.mat <- tax_table(Robinson.core)
+tax.df <- as.data.frame(tax.mat)
+tax.df$OTU <- rownames(tax.df)
+core.taxa.class <- dplyr::filter(tax.df, rownames(tax.df) %in% Robinson.core.taxa)
+Robinson_core_table <-knitr::kable(head(core.taxa.class))
+Robinson_core_table
+
+
+
+
+prevalences <- seq(.05, 1, .05)
+detections <- round(10^seq(log10(1e-3), log10(.2), length = 10), 3)
+gray <- gray(seq(0,1,length=5))
+p <- plot_core(Robinson.core, plot.type = "heatmap",
+           colours = rev(brewer.pal(5, "Spectral")),           
+               prevalences = prevalences,
+           detections = detections
+           ) +
+    labs(x = "Detection Threshold") +
+  ggtitle("Robinson Core Microbiome")
+p
+
+ggsave("~/Desktop/phyloseq_files_6.14.23/Core_microbiome_figures/Images/Robinson_core.pdf", units="in", width=12, height=7, dpi=300)
+```
+Milford
+
+```{r}
+#change ASV ID to taxa names
+tax_table(Milford.rel)[tax_table(Milford.rel) == "d__"] <- NA
+tax_table(Milford.rel)[tax_table(Milford.rel) == "p__"] <- NA
+tax_table(Milford.rel)[tax_table(Milford.rel) == "c__"] <- NA
+tax_table(Milford.rel)[tax_table(Milford.rel) == "o__"] <- NA
+tax_table(Milford.rel)[tax_table(Milford.rel) == "f__"] <- NA
+tax_table(Milford.rel)[tax_table(Milford.rel) == "g__"] <- NA
+tax_table(Milford.rel)[tax_table(Milford.rel) == "s__"] <- NA
+
+tax_table(Milford.rel)[, colnames(tax_table(Milford.rel))] <- gsub(tax_table(Milford.rel)[, colnames(tax_table(Milford.rel))],  pattern = "[a-z]__", replacement = "")
+Milford.rel2 <- add_besthit(Milford.rel)
+taxa_names(Milford.rel2 )[1:100]
+
+Milford.rel2.gen <- aggregate_taxa(Milford.rel2, "Genus")
+
+
+Milford.core.mem <- core_members(Milford.rel2.gen, detection = 0.0001, prevalence = 99/100)
+Milford.core.mem
+Milford.core <- core(Milford.rel2.gen, detection = 0.0001, prevalence = .99)
+Milford.core
+Milford.core.taxa <- taxa(Milford.core)
+class(Milford.core.taxa)
+tax.mat <- tax_table(Milford.core)
+tax.df <- as.data.frame(tax.mat)
+tax.df$OTU <- rownames(tax.df)
+core.taxa.class <- dplyr::filter(tax.df, rownames(tax.df) %in% Milford.core.taxa)
+Milford_core_table <-knitr::kable(head(core.taxa.class))
+Milford_core_table
+
+
+
+
+prevalences <- seq(.05, 1, .05)
+detections <- round(10^seq(log10(1e-3), log10(.2), length = 10), 3)
+gray <- gray(seq(0,1,length=5))
+p <- plot_core(Milford.core, plot.type = "heatmap",
+           colours = rev(brewer.pal(5, "Spectral")),           
+               prevalences = prevalences,
+           detections = detections
+           ) +
+    labs(x = "Detection Threshold") +
+  ggtitle("Milford Core Microbiome")
+p
+
+ggsave("~/Desktop/phyloseq_files_6.14.23/Core_microbiome_figures/Images/Milford_core.pdf", units="in", width=12, height=9, dpi=300)
+```
+
+Slate Creek
+```{r}
+#change ASV ID to taxa names
+tax_table(Slate_Creek.rel)[tax_table(Slate_Creek.rel) == "d__"] <- NA
+tax_table(Slate_Creek.rel)[tax_table(Slate_Creek.rel) == "p__"] <- NA
+tax_table(Slate_Creek.rel)[tax_table(Slate_Creek.rel) == "c__"] <- NA
+tax_table(Slate_Creek.rel)[tax_table(Slate_Creek.rel) == "o__"] <- NA
+tax_table(Slate_Creek.rel)[tax_table(Slate_Creek.rel) == "f__"] <- NA
+tax_table(Slate_Creek.rel)[tax_table(Slate_Creek.rel) == "g__"] <- NA
+tax_table(Slate_Creek.rel)[tax_table(Slate_Creek.rel) == "s__"] <- NA
+
+tax_table(Slate_Creek.rel)[, colnames(tax_table(Slate_Creek.rel))] <- gsub(tax_table(Slate_Creek.rel)[, colnames(tax_table(Slate_Creek.rel))],  pattern = "[a-z]__", replacement = "")
+Slate_Creek.rel2 <- add_besthit(Slate_Creek.rel)
+taxa_names(Slate_Creek.rel2 )[1:100]
+
+Slate_Creek.rel2.gen <- aggregate_taxa(Slate_Creek.rel2, "Genus")
+
+
+Slate_Creek.core.mem <- core_members(Slate_Creek.rel2.gen, detection = 0.0001, prevalence = 99/100)
+Slate_Creek.core.mem
+Slate_Creek.core <- core(Slate_Creek.rel2.gen, detection = 0.0001, prevalence = .99)
+Slate_Creek.core
+Slate_Creek.core.taxa <- taxa(Slate_Creek.core)
+class(Slate_Creek.core.taxa)
+tax.mat <- tax_table(Slate_Creek.core)
+tax.df <- as.data.frame(tax.mat)
+tax.df$OTU <- rownames(tax.df)
+core.taxa.class <- dplyr::filter(tax.df, rownames(tax.df) %in% Slate_Creek.core.taxa)
+Slate_Creek_core_table <-knitr::kable(head(core.taxa.class))
+Slate_Creek_core_table
+
+
+
+
+prevalences <- seq(.05, 1, .05)
+detections <- round(10^seq(log10(1e-3), log10(.2), length = 10), 3)
+gray <- gray(seq(0,1,length=5))
+p <- plot_core(Slate_Creek.core, plot.type = "heatmap",
+           colours = rev(brewer.pal(5, "Spectral")),           
+               prevalences = prevalences,
+           detections = detections
+           ) +
+    labs(x = "Detection Threshold") +
+  ggtitle("Slate Creek Core Microbiome")
+p
+
+ggsave("~/Desktop/phyloseq_files_6.14.23/Core_microbiome_figures/Images/Slate_Creek_core.pdf", units="in", width=12, height=4, dpi=300)
+```
+
+Stoner Creek
+```{r}
+#change ASV ID to taxa names
+tax_table(Stoner_Creek.rel)[tax_table(Stoner_Creek.rel) == "d__"] <- NA
+tax_table(Stoner_Creek.rel)[tax_table(Stoner_Creek.rel) == "p__"] <- NA
+tax_table(Stoner_Creek.rel)[tax_table(Stoner_Creek.rel) == "c__"] <- NA
+tax_table(Stoner_Creek.rel)[tax_table(Stoner_Creek.rel) == "o__"] <- NA
+tax_table(Stoner_Creek.rel)[tax_table(Stoner_Creek.rel) == "f__"] <- NA
+tax_table(Stoner_Creek.rel)[tax_table(Stoner_Creek.rel) == "g__"] <- NA
+tax_table(Stoner_Creek.rel)[tax_table(Stoner_Creek.rel) == "s__"] <- NA
+
+tax_table(Stoner_Creek.rel)[, colnames(tax_table(Stoner_Creek.rel))] <- gsub(tax_table(Stoner_Creek.rel)[, colnames(tax_table(Stoner_Creek.rel))],  pattern = "[a-z]__", replacement = "")
+Stoner_Creek.rel2 <- add_besthit(Stoner_Creek.rel)
+taxa_names(Stoner_Creek.rel2 )[1:100]
+
+Stoner_Creek.rel2.gen <- aggregate_taxa(Stoner_Creek.rel2, "Genus")
+
+
+Stoner_Creek.core.mem <- core_members(Stoner_Creek.rel2.gen, detection = 0.0001, prevalence = 99/100)
+Stoner_Creek.core.mem
+Stoner_Creek.core <- core(Stoner_Creek.rel2.gen, detection = 0.0001, prevalence = .99)
+Stoner_Creek.core
+Stoner_Creek.core.taxa <- taxa(Stoner_Creek.core)
+class(Stoner_Creek.core.taxa)
+tax.mat <- tax_table(Stoner_Creek.core)
+tax.df <- as.data.frame(tax.mat)
+tax.df$OTU <- rownames(tax.df)
+core.taxa.class <- dplyr::filter(tax.df, rownames(tax.df) %in% Stoner_Creek.core.taxa)
+Stoner_Creek_core_table <-knitr::kable(head(core.taxa.class))
+Stoner_Creek_core_table
+
+
+
+
+prevalences <- seq(.05, 1, .05)
+detections <- round(10^seq(log10(1e-3), log10(.2), length = 10), 3)
+gray <- gray(seq(0,1,length=5))
+p <- plot_core(Stoner_Creek.core, plot.type = "heatmap",
+           colours = rev(brewer.pal(5, "Spectral")),           
+               prevalences = prevalences,
+           detections = detections
+           ) +
+    labs(x = "Detection Threshold") +
+  ggtitle("Stoner Creek Core Microbiome")
+p
+
+ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Stoner_Creek_core.pdf", units="in", width=13, height=10, dpi=300)
+```
+
+Fox Creek
+```{r}
+#change ASV ID to taxa names
+tax_table(Fox_Creek.rel)[tax_table(Fox_Creek.rel) == "d__"] <- NA
+tax_table(Fox_Creek.rel)[tax_table(Fox_Creek.rel) == "p__"] <- NA
+tax_table(Fox_Creek.rel)[tax_table(Fox_Creek.rel) == "c__"] <- NA
+tax_table(Fox_Creek.rel)[tax_table(Fox_Creek.rel) == "o__"] <- NA
+tax_table(Fox_Creek.rel)[tax_table(Fox_Creek.rel) == "f__"] <- NA
+tax_table(Fox_Creek.rel)[tax_table(Fox_Creek.rel) == "g__"] <- NA
+tax_table(Fox_Creek.rel)[tax_table(Fox_Creek.rel) == "s__"] <- NA
+
+tax_table(Fox_Creek.rel)[, colnames(tax_table(Fox_Creek.rel))] <- gsub(tax_table(Fox_Creek.rel)[, colnames(tax_table(Fox_Creek.rel))],  pattern = "[a-z]__", replacement = "")
+Fox_Creek.rel2 <- add_besthit(Fox_Creek.rel)
+taxa_names(Fox_Creek.rel2 )[1:100]
+
+Fox_Creek.rel2.gen <- aggregate_taxa(Fox_Creek.rel2, "Genus")
+
+
+Fox_Creek.core.mem <- core_members(Fox_Creek.rel2.gen, detection = 0.0001, prevalence = 99/100)
+Fox_Creek.core.mem
+Fox_Creek.core <- core(Fox_Creek.rel2.gen, detection = 0.0001, prevalence = .99)
+Fox_Creek.core
+Fox_Creek.core.taxa <- taxa(Fox_Creek.core)
+class(Fox_Creek.core.taxa)
+tax.mat <- tax_table(Fox_Creek.core)
+tax.df <- as.data.frame(tax.mat)
+tax.df$OTU <- rownames(tax.df)
+core.taxa.class <- dplyr::filter(tax.df, rownames(tax.df) %in% Fox_Creek.core.taxa)
+Fox_Creek_core_table <-knitr::kable(head(core.taxa.class))
+Fox_Creek_core_table
+
+
+
+
+prevalences <- seq(.05, 1, .05)
+detections <- round(10^seq(log10(1e-3), log10(.2), length = 10), 3)
+gray <- gray(seq(0,1,length=5))
+p <- plot_core(Fox_Creek.core, plot.type = "heatmap",
+           colours = rev(brewer.pal(5, "Spectral")),           
+               prevalences = prevalences,
+           detections = detections
+           ) +
+    labs(x = "Detection Threshold") +
+  ggtitle("Fox Creek Core Microbiome")
+p
+
+ggsave("~/Desktop/phyloseq_files_6.14.23/Core_microbiome_figures/Images/Fox_Creek_core.pdf", units="in", width=12, height=6, dpi=300)
+```
+
+Claysville
+```{r}
+#change ASV ID to taxa names
+tax_table(Claysville.rel)[tax_table(Claysville.rel) == "d__"] <- NA
+tax_table(Claysville.rel)[tax_table(Claysville.rel) == "p__"] <- NA
+tax_table(Claysville.rel)[tax_table(Claysville.rel) == "c__"] <- NA
+tax_table(Claysville.rel)[tax_table(Claysville.rel) == "o__"] <- NA
+tax_table(Claysville.rel)[tax_table(Claysville.rel) == "f__"] <- NA
+tax_table(Claysville.rel)[tax_table(Claysville.rel) == "g__"] <- NA
+tax_table(Claysville.rel)[tax_table(Claysville.rel) == "s__"] <- NA
+
+tax_table(Claysville.rel)[, colnames(tax_table(Claysville.rel))] <- gsub(tax_table(Claysville.rel)[, colnames(tax_table(Claysville.rel))],  pattern = "[a-z]__", replacement = "")
+Claysville.rel2 <- add_besthit(Claysville.rel)
+taxa_names(Claysville.rel2 )[1:100]
+
+Claysville.rel2.gen <- aggregate_taxa(Claysville.rel2, "Genus")
+
+
+Claysville.core.mem <- core_members(Claysville.rel2.gen, detection = 0.0001, prevalence = 99/100)
+Claysville.core.mem
+Claysville.core <- core(Claysville.rel2.gen, detection = 0.0001, prevalence = .99)
+Claysville.core
+Claysville.core.taxa <- taxa(Claysville.core)
+class(Claysville.core.taxa)
+tax.mat <- tax_table(Claysville.core)
+tax.df <- as.data.frame(tax.mat)
+tax.df$OTU <- rownames(tax.df)
+core.taxa.class <- dplyr::filter(tax.df, rownames(tax.df) %in% Claysville.core.taxa)
+Claysville_core_table <-knitr::kable(head(core.taxa.class))
+Claysville_core_table
+
+
+
+
+prevalences <- seq(.05, 1, .05)
+detections <- round(10^seq(log10(1e-3), log10(.2), length = 10), 3)
+gray <- gray(seq(0,1,length=5))
+p <- plot_core(Claysville.core, plot.type = "heatmap",
+           colours = rev(brewer.pal(5, "Spectral")),           
+               prevalences = prevalences,
+           detections = detections
+           ) +
+    labs(x = "Detection Threshold") +
+  ggtitle("Claysville Core Microbiome")
+p
+
+ggsave("~/Desktop/phyloseq_files_6.14.23/Core_microbiome_figures/Images/Claysville_core.pdf", units="in", width=12, height=12, dpi=300)
+```
+
+
+Butler
+```{r}
+#change ASV ID to taxa names
+tax_table(Butler.rel)[tax_table(Butler.rel) == "d__"] <- NA
+tax_table(Butler.rel)[tax_table(Butler.rel) == "p__"] <- NA
+tax_table(Butler.rel)[tax_table(Butler.rel) == "c__"] <- NA
+tax_table(Butler.rel)[tax_table(Butler.rel) == "o__"] <- NA
+tax_table(Butler.rel)[tax_table(Butler.rel) == "f__"] <- NA
+tax_table(Butler.rel)[tax_table(Butler.rel) == "g__"] <- NA
+tax_table(Butler.rel)[tax_table(Butler.rel) == "s__"] <- NA
+
+tax_table(Butler.rel)[, colnames(tax_table(Butler.rel))] <- gsub(tax_table(Butler.rel)[, colnames(tax_table(Butler.rel))],  pattern = "[a-z]__", replacement = "")
+Butler.rel2 <- add_besthit(Butler.rel)
+taxa_names(Butler.rel2 )[1:100]
+
+Butler.rel2.gen <- aggregate_taxa(Butler.rel2, "Genus")
+
+
+Butler.core.mem <- core_members(Butler.rel2.gen, detection = 0.0001, prevalence = 99/100)
+Butler.core.mem
+Butler.core <- core(Butler.rel2.gen, detection = 0.0001, prevalence = .99)
+Butler.core
+Butler.core.taxa <- taxa(Butler.core)
+class(Butler.core.taxa)
+tax.mat <- tax_table(Butler.core)
+tax.df <- as.data.frame(tax.mat)
+tax.df$OTU <- rownames(tax.df)
+core.taxa.class <- dplyr::filter(tax.df, rownames(tax.df) %in% Butler.core.taxa)
+Butler_core_table <-knitr::kable(head(core.taxa.class))
+Butler_core_table
+
+
+
+
+prevalences <- seq(.05, 1, .05)
+detections <- round(10^seq(log10(1e-3), log10(.2), length = 10), 3)
+gray <- gray(seq(0,1,length=5))
+p <- plot_core(Butler.core, plot.type = "heatmap",
+           colours = rev(brewer.pal(5, "Spectral")),           
+               prevalences = prevalences,
+           detections = detections
+           ) +
+    labs(x = "Detection Threshold") +
+  ggtitle("Butler Core Microbiome")
+p
+
+ggsave("~/Desktop/phyloseq_files_6.14.23/Core_microbiome_figures/Images/Butler_core.pdf", units="in", width=12, height=6, dpi=300)
+```
+
+Get lists of each core microbiome
+```{r}
+ALIG_list <-ALIG.core.mem
+capture.output(ALIG_list, file = "~/Desktop/ALIG_list.txt")
+
+AVIR_list <-AVIR.core.mem
+capture.output(AVIR_list, file = "~/Desktop/AVIR_list.txt")
+
+APLI_list <-APLI.core.mem
+capture.output(APLI_list, file = "~/Desktop/APLI_list.txt")
+
+PGRA_list <-PGRA.core.mem
+capture.output(PGRA_list, file = "~/Desktop/PGRA_list.txt")
+
+LSIL_list <-LSIL.core.mem
+capture.output(LSIL_list, file = "~/Desktop/LSIL_list.txt")
+
+CFLU_list <-CFLU.core.mem
+capture.output(CFLU_list, file = "~/Desktop/CFLU_list.txt")
+
+
+
+################location###############
+Butler_list <-Butler.core.mem 
+capture.output(Butler_list, file= "~/Desktop/Butler_list.txt")
+
+Robinson_list <-Robinson.core.mem
+capture.output(Robinson_list, file = "~/Desktop/Robinson_list.txt")
+
+Claysville_list <-Claysville.core.mem
+capture.output(Claysville_list, file = "~/Desktop/Claysville_list.txt")
+
+Milford_list <-Milford.core.mem
+capture.output(Milford_list, file = "~/Desktop/Milford_list.txt")
+
+Fox_Creek_list <-Fox_Creek.core.mem
+capture.output(Fox_Creek_list, file = "~/Desktop/Fox_Creek_list.txt")
+
+Slate_Creek_list <-Slate_Creek.core.mem
+capture.output(Slate_Creek_list, file = "~/Desktop/Slate_Creek_list.txt")
+
+Stoner_Creek_list <-Stoner_Creek.core.mem
+capture.output(Stoner_Creek_list, file = "~/Desktop/Stoner_Creek_list.txt")
+```
+
+
+Unique Genera
+```{r}
+#Locations
+#setdiff finds values in list X that are not in list Y
+butler1 <-setdiff(Butler.core.mem, Robinson.core.mem)
+butler2 <- setdiff(butler1, Claysville.core.mem)
+butler3 <- setdiff(butler2, Fox_Creek.core.mem)
+butler4 <- setdiff(butler3, Milford.core.mem)
+butler5 <- setdiff(butler4, Slate_Creek.core.mem)
+butler6 <- setdiff(butler5, Stoner_Creek.core.mem)
+length(butler6)
+#16 OTUs for butler
+
+Robinson1 <- setdiff(Robinson.core.mem, Butler.core.mem) #12
+Robinson2 <- setdiff(Robinson1, Claysville.core.mem) #7
+Robinson3 <- setdiff(Robinson2, Fox_Creek.core.mem) #7
+Robinson4 <- setdiff(Robinson3, Milford.core.mem) #7
+Robinson5 <- setdiff(Robinson4, Slate_Creek.core.mem)#7
+Robinson6 <- setdiff(Robinson5, Stoner_Creek.core.mem)
+length(Robinson6)
+#3 OTUs for Robinson
+
+Claysville1 <- setdiff(Claysville.core.mem, Butler.core.mem)#34
+Claysville2 <- setdiff(Claysville1, Fox_Creek.core.mem)#25
+Claysville3 <- setdiff(Claysville2, Milford.core.mem)#20
+Claysville4 <- setdiff(Claysville3, Robinson.core.mem)#20
+Claysville5 <- setdiff(Claysville4, Slate_Creek.core.mem)#20
+Claysville6 <- setdiff(Claysville5, Stoner_Creek.core.mem)
+length(Claysville6)
+#2 OTUs for Claysville
+
+Fox1 <- setdiff(Fox_Creek.core.mem, Butler.core.mem)#16
+Fox2 <- setdiff(Fox1, Claysville.core.mem)#7
+Fox3 <- setdiff(Fox2, Milford.core.mem)#6
+Fox4 <- setdiff(Fox3, Robinson.core.mem)#6
+Fox5 <- setdiff(Fox4, Slate_Creek.core.mem)#6
+Fox6 <- setdiff(Fox5, Stoner_Creek.core.mem)
+length(Fox6)
+#7 OTUs for Fox Creek
+
+Milford1 <- setdiff(Milford.core.mem, Butler.core.mem)#31
+Milford2 <- setdiff(Milford1, Claysville.core.mem)#18
+Milford3 <- setdiff(Milford2, Fox_Creek.core.mem)#17
+Milford4 <- setdiff(Milford3, Robinson.core.mem)#17
+Milford5 <- setdiff(Milford4, Slate_Creek.core.mem)#16
+Milford6 <- setdiff(Milford5, Stoner_Creek.core.mem)#12
+length(Milford6)
+#12 OTUs for Milford
+
+Slate1 <- setdiff(Slate_Creek.core.mem, Butler.core.mem)#11
+Slate2 <- setdiff(Slate1, Claysville.core.mem)#5
+Slate3 <- setdiff(Slate2, Fox_Creek.core.mem)#5
+Slate4 <- setdiff(Slate3, Milford.core.mem)#4
+Slate5 <- setdiff(Slate4, Robinson.core.mem)#4
+Slate6 <- setdiff(Slate5, Stoner_Creek.core.mem)
+length(Slate6)
+#3 OTUs for Slate Creek
+
+Stoner1 <- setdiff(Stoner_Creek.core.mem, Butler.core.mem)#46
+Stoner2 <- setdiff(Stoner1, Claysville.core.mem)#33
+Stoner3 <- setdiff(Stoner2, Fox_Creek.core.mem) #32
+Stoner4 <- setdiff(Stoner3, Milford.core.mem)#27
+Stoner5 <- setdiff(Stoner4, Robinson.core.mem)#26
+Stoner6 <- setdiff(Stoner5, Slate_Creek.core.mem)#25
+length(Stoner6)
+#32 OTUs for Stoner Creek
+
+#Species
+ALIG1 <- setdiff(ALIG.core.mem, APLI.core.mem)
+ALIG2 <- setdiff(ALIG1, AVIR.core.mem)
+ALIG3 <- setdiff(ALIG2, LSIL.core.mem)
+ALIG4 <- setdiff(ALIG3, PGRA.core.mem)
+ALIG5 <- setdiff(ALIG4, CFLU.core.mem)
+length(ALIG5)
+
+
+APLI1 <- setdiff(APLI.core.mem, ALIG.core.mem)
+APLI2 <- setdiff(APLI1, AVIR.core.mem)
+APLI3 <- setdiff(APLI2, LSIL.core.mem)
+APLI4 <- setdiff(APLI3, LSIL.core.mem)
+APLI5 <- setdiff(APLI4, PGRA.core.mem)  #0
+length(APLI5)
+
+AVIR1 <- setdiff(AVIR.core.mem, ALIG.core.mem)#0
+
+
+LSIL1 <- setdiff(LSIL.core.mem, ALIG.core.mem)
+LSIL2 <- setdiff(LSIL1, APLI.core.mem)
+LSIL3 <- setdiff(LSIL2, AVIR.core.mem)
+LSIL4 <- setdiff(LSIL3, PGRA.core.mem)
+LSIL5 <- setdiff(LSIL4, CFLU.core.mem)
+length(LSIL5)
+
+PGRA1 <- setdiff(PGRA.core.mem, ALIG.core.mem)
+PGRA2 <- setdiff(PGRA1, APLI.core.mem)
+PGRA3 <- setdiff(PGRA2, AVIR.core.mem)
+PGRA4 <- setdiff(PGRA3, LSIL.core.mem)
+PGRA5 <- setdiff(PGRA4, CFLU.core.mem)
+length(PGRA5)
+
+CFLU1 <- setdiff(CFLU.core.mem, ALIG.core.mem)
+
+
+```
+FAPROTAX
+
+```{r}
+#make the table_with_taxonomy file to run in faprotax using python
+#Get taxonomy file
+taxonomy <- taxonomy_to_qiime(bacteria_no_replicates_no_negs_data)
+otus <- (as.data.frame(otu_table(bacteria_no_replicates_no_negs_data)))
+
+otu2 <-otus
+
+otu2$row_names <- row.names(otu2)  
+rownames(otu2)<-NULL
+colnames(otu2)[95] ="OTU_ID"
+table_with_taxonomy <- merge(x=taxonomy,y=otu2, by="OTU_ID", all.x = TRUE)
+
+#export
+library(writexl)
+write_xlsx(table_with_taxonomy, "~/Desktop/phyloseq_files_6.14.23/table_with_taxonomy.11.23.30.xlsx")
+
+#Results from faportax: Assigned 1389 records to groups, 3475 records were leftovers
+
+
+library(vegan)
+library(ggplot2)
+library(dplyr)
+
+
+#from FAPROTAX
+	#http://www.loucalab.com/archive/FAPROTAX/lib/php/index.php?section=Instructions
+#python ./collapse_table.py -i table_with_taxonomy.txt -o func_table.tsv -g FAPROTAX.txt -d taxonomy -c "#" -v
+
+#import function table (i.e., the output from faprotax)
+fun <- read_tsv("~/Desktop/phyloseq_files_6.14.23/func_table_11.23.30.5.tsv", col_names = TRUE)
+#make column1 (group) the row names
+row.names<- fun[,1]
+fun <- data.frame(fun, row.names = 1)
+#transpose table
+fun <- (t(fun))
+#find the minimum row sum (use this for rarifraction)
+min(rowSums(fun))
+
+library(GUniFrac)
+set.seed(13)
+otu.tab.rff <- Rarefy(fun, 440)$otu.tab.rff
+
+#remove columns that sum to 0: https://stackoverflow.com/questions/34059929/removing-all-columns-summing-to-zero-with-dplyr
+
+otu.tab.rff.subset <- otu.tab.rff [, colSums(otu.tab.rff  != 0) > 0]
+
+
+
+#use vegan package to find bray curtis distances
+dist<-vegdist(otu.tab.rff.subset, method="bray") 
+
+#perform PCoA, make all egianvalues positive with a correction, https://uw.pressbooks.pub/appliedmultivariatestatistics/chapter/pcoa/
+function_pcoa <-vegan::wcmdscale(dist, eig=TRUE, k=10, add="cailliez", x.ret=TRUE)
+
+eigenvals(function_pcoa) %>%
+  summary() -> ev
+#axis 1 = 26.33%
+#axis 2 = 11.92%
+
+#Save coordinates to a new dataframe
+axes <- as.data.frame(as.matrix(scores(function_pcoa)))
+#make row names the first column and name it "sample_id"
+axes$row_names <- row.names(axes)
+colnames(axes)[11] ="Sample_ID"
+
+#make dataframe with metadata and cooridantes
+pcoa_function_data <- inner_join(axes, all_meta, by="Sample_ID" )
+
+#plot the PCoA
+mussel_function_pcoa <-ggplot(pcoa_function_data , aes(x=Dim1, y=Dim2, shape=Mussel_Species, color=Location)) + geom_point(size=5) + ggtitle (label = "PCoA of Bray-Curtis Distances for Predicted Function", subtitle = "by Location and Species")  + theme_classic() + scale_color_brewer("Location", palette = "Set2"
+)
+a <- mussel_function_pcoa  + xlab("Axis 1 - 26.33%") + # for the x axis label
+ylab("Axis 2 - 11.92%") # for the y axis label
+
+a
+#ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Figure_5_PCoA_Function_BC.pdf", units="in", width=10, height=7, dpi=300)
+
+
+#For 3D plot showing first 3 axis
+t <- list(
+  family = "Courier New",
+  size = 14,
+  color = "blue")
+t1 <- list(
+  family = "Times New Roman",
+  color = "red"
+)
+t2 <- list(
+  family = "Courier New",
+  size = 14,
+  color = "green")
+t3 <- list(family = 'Arial')
+
+
+library(plotly)
+Three_D_fig2 <- plot_ly(x=pcoa_function_data$Dim1, y=pcoa_function_data$Dim2, z=pcoa_function_data$Dim3, type="scatter3d", mode="markers", color=pcoa_function_data$Location) %>%
+  layout(title = list(text = "Bray-Curtis Functional Distance by Location", font = t1), font=t, legends = list(title=list(text="Locations", font =t2)))
+Three_D_fig2
+
+
+stat_function <- adonis2(dist~Location * Mussel_Species, dat, permutations = 9999)
+stat_function
+sink(file = "~/Desktop/phyloseq_files_6.14.23/adonis_Location_X_Speices_function.txt")
+stat
+sink(file = NULL)
+summary(stat)
+
+
+pairwise_location_function <-pairwise.adonis2(dist ~ Location, strata = "Mussel_Species", data = dat)
+sink(file = "~/Desktop/phyloseq_files_6.14.23/pairwise_locations_function_output.txt")
+pairwise_location_function
+sink(file = NULL)
+
+pairwise_species_function <-pairwise.adonis2(dist ~ Mussel_Species, strata = "Location", data = dat)
+sink(file = "~/Desktop/phyloseq_files_6.14.23/pairwise_species_function_output.txt")
+pairwise_species_function
+sink(file = NULL)
+
+```
+heatmap
+https://jcoliver.github.io/learn-r/006-heatmaps.html
+```{r}
+library(ggplot2)
+library(tidyr)
+
+
+#meta_data %>% mutate(`Sample_ID`=as.character(`Sample_ID`))
+#out.tab.rff.subset is from chunck above
+count_table <- as.data.frame(otu.tab.rff.subset)
+count_table <- count_table[colSums(count_table) > 100]
+count_table$row_names <- row.names(otu.tab.rff.subset)
+colnames(count_table)[21] ="Sample_ID"
+#count_table %>% mutate(`Sample_ID`=as.character(`Sample_ID`))
+attributes(count_table)
+attributes(all_meta)
+
+all_data <- inner_join(count_table, all_meta, by= "Sample_ID")
+str(all_data)
+
+long_data <- pivot_longer(data=all_data, cols = -c(21:28), names_to= "Function", values_to = "Abundance")
+head(long_data)
+long_data$Sqrt.abundance <- sqrt(long_data$Abundance)
+
+function_heatmap_location <- ggplot(data=long_data, mapping = aes(x = Sample_ID, y = Function, fill = Sqrt.abundance, group_by=Mussel_Species)) +
+  geom_tile() +
+  xlab(label = "Individual")+
+  facet_grid(~Location, scales = "free_x", space = "free_x")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size=rel(0.7)))+
+   scale_fill_gradient(name = "Sqrt(Abundance)",
+                      low = "#FFFFFF",
+                      high = "#678f71")+
+  ggtitle(label = "Abundance of Hypothetical Function by Location")
+ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Figure_6_Heatmap_Location.pdf", units="in", width=14, height=7, dpi=300)
+ 
+function_heatmap_species <- ggplot(data=long_data, mapping = aes(x = Sample_ID, y = Function, fill = Sqrt.abundance, group_by=Location)) +
+  geom_tile() +
+  xlab(label = "Individual")+
+  facet_grid(~Mussel_Species, scales = "free_x", space = "free_x")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size=rel(0.7)))+
+  scale_fill_gradient(name = "Sqrt(Abundance)",
+                      low = "#FFFFFF",
+                      high = "#ed4ce5")+
+  ggtitle(label = "Abundance of Hypothetical Functions by Species")
+ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Heatmap_species.pdf", units="in", width=14, height=7, dpi=300) 
+
+
+
+function_heatmap_location2 <- ggplot(data=long_data, mapping = aes(x = Sample_ID, y = Function, fill =Abundance, group_by=Mussel_Species)) +
+  geom_tile() +
+  xlab(label = "Individual")+
+  facet_grid(~Location, scales = "free_x", space = "free_x")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size=rel(0.7)))+
+   scale_fill_gradient(name = "Sqrt(Abundance)",
+                      low = "#FFFFFF",
+                      high = "#678f71")+
+  ggtitle(label = "Abundance of Hypothetical Function by Location")
+
+#ggsave("~/Desktop/phyloseq_files_6.14.23/Images/Figure_6_Heatmap_Location.pdf", units="in", width=14, height=7, dpi=300)
+```
+
