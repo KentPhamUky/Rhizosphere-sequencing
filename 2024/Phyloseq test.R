@@ -92,26 +92,26 @@ ggplot(Clean_phylum, aes(x = Plot, y = Abundance, fill = Phylum)) +
 
 ####Ordination with arrows####
 
-bray_not_na <- phyloseq::distance(physeq = erie_not_na, method = "bray")
+bray<- phyloseq::distance(physeq = Clean, method = "bray")
 
 
 # CAP ordinate
 cap_ord <- ordinate(
-  physeq = erie_not_na, 
+  physeq = Clean, 
   method = "CAP",
-  distance = bray_not_na,
-  formula = ~ ParMC + Nitrate + SRP + Phycocyanin + Ammonia + pH + H2O2
+  distance = bray,
+  formula = ~ soilpH + P.kg.ha + K.kg.ha + Ca.kg.ha + Mg.kg.ha + Zn.kg.ha
 )
 
 # CAP plot
 cap_plot <- plot_ordination(
-  physeq = erie_not_na, 
+  physeq = Clean, 
   ordination = cap_ord, 
-  color = "Month", 
+  color = "CashCrop", 
   axes = c(1,2)
 ) + 
-  aes(shape = Station) + 
-  geom_point(aes(colour = Month), alpha = 0.4, size = 4) + 
+  aes(shape = Site) + 
+  geom_point(aes(colour = CashCrop), alpha = 0.4, size = 4) + 
   geom_point(colour = "grey90", size = 1.5) + 
   scale_color_manual(values = c("#a65628", "red", "#ffae19", "#4daf4a", 
                                 "#1919ff", "darkorchid3", "magenta")
