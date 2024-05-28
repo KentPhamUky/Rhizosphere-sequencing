@@ -10,7 +10,7 @@ library(scales)
 library(grid)
 library(reshape2)
 library(phyloseq)
-
+####Loading in####
 #Plotting theme
 theme_set(theme_bw())
 
@@ -44,7 +44,7 @@ Clean <- moth_sub %>%
       Family  != "mitochondria" &
       Class   != "Chloroplast"
   )
-
+####Metadata####
 
 # Make a data frame with a column for the read counts of each sample
 sample_sum_df <- data.frame(sum = sample_sums(Clean))
@@ -57,7 +57,7 @@ smin <- min(sample_sums(Clean))
 smean <- mean(sample_sums(Clean))
 smax <- max(sample_sums(Clean))
 
-
+####Phylum Graph####
 
 Clean_phylum <- Clean %>%
   tax_glom(taxrank = "Phylum") %>%                     # agglomerate at phylum level
@@ -88,7 +88,36 @@ ggplot(Clean_phylum, aes(x = Plot, y = Abundance, fill = Phylum)) +
   ylab("Relative Abundance (Phyla > 2%) \n") +
   ggtitle("Phylum Composition of Spring 2024 \n Bacterial Communities by Plot") 
 
+####Genus Graph####
 
+Clean_genus <- Clean %>%
+  tax_glom(taxrank = "Genus") %>%                     # agglomerate at phylum level
+  transform_sample_counts(function(x) {x/sum(x)} ) %>% # Transform to rel. abundance
+  psmelt() %>%                                         # Melt to long format
+  filter(Abundance > 0.02) %>%                         # Filter out low abundance taxa
+  arrange(Genus)                                      # Sort data frame alphabetically by genera
+
+# Plot
+genus_colors <- c(
+  "#CBD588", "#5F7FC7", "orange","#DA5724", "#508578", "#CD9BCD",
+  "#AD6F3B", "#673770","#D14285", "#652926", "#C84248", 
+  "#8569D5", "#5E738F","#D1A33D", "#8A7C64", "#599861"
+)
+ggplot(Clean_genus, aes(x = Plot, y = Abundance, fill = Genus)) + 
+  facet_grid(Station~.) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values =genus_colors) +
+  #scale_x_discrete(
+  # breaks = c("7/8", "8/4", "9/2", "10/6"),
+  #labels = c("Jul", "Aug", "Sep", "Oct"), 
+  # drop = FALSE
+  #) +
+  # Remove x axis title
+  theme(axis.title.x = element_blank()) + 
+  #
+  guides(fill = guide_legend(reverse = TRUE, keywidth = 1, keyheight = 1)) +
+  ylab("Relative Abundance (Genera > 2%) \n") +
+  ggtitle("Genus Level Composition of Spring 2024 \n Bacterial Communities by Plot") 
 
 ####Ordination with arrows####
 
