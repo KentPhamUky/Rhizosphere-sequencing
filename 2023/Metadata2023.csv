@@ -1,0 +1,61 @@
+﻿group,Treatment,Site,combined,Year,Cashcrop
+3KS_101,Hemp Fiber,KS,Hemp FiberKS,3,Soybean
+3KS_102,Hemp Grain,KS,Hemp GrainKS,3,Corn
+3KS_103,Hemp Grain,KS,HempGrainKS,3,Grain
+3KS_104,Conventional,KS,ConventionalKS,3,Soybean
+3KS_105,Conventional,KS,ConventionalKS,3,Corn
+3KS_106,Hemp Fiber,KS,Hemp FiberKS,3,Fiber
+3KS_201,Conventional,KS,ConventionalKS,3,Corn
+3KS_202,Hemp Fiber,KS,Hemp FiberKS,3,Soybean
+3KS_203,Hemp Fiber,KS,Hemp FiberKS,3,Fiber
+3KS_204,Hemp Grain,KS,Hemp GrainKS,3,Corn
+3KS_205,Conventional,KS,ConventionalKS,3,Soybean
+3KS_206,Hemp Grain,KS,Hemp GrainKS,3,Grain
+3KS_301,Hemp Grain,KS,Hemp GrainKS,3,Grain
+3KS_302,Hemp Fiber,KS,Hemp FiberKS,3,Soybean
+3KS_303,Conventional,KS,ConventionalKS,3,Soybean
+3KS_304,Conventional,KS,ConventionalKS,3,Corn
+3KS_305,Hemp Grain,KS,Hemp GrainKS,3,Corn
+3KS_306,Hemp Fiber,KS,Hemp FiberKS,3,Fiber
+3KS_401,Hemp Grain,KS,Hemp GrainKS,3,Corn
+3KS_402,Conventional,KS,ConventionalKS,3,Corn
+3KS_403,Conventional,KS,ConventionalKS,3,Soybean
+3KS_404,Hemp Grain,KS,Hemp GrainKS,3,Grain
+3KS_405,Hemp Fiber,KS,Hemp FiberKS,3,Soybean
+3KS_406,Hemp Fiber,KS,Hemp FiberKS,3,Fiber
+3KS_501,Hemp Fiber,KS,Hemp FiberKS,3,Fiber
+3KS_502,Conventional,KS,ConventionalKS,3,Soybean
+3KS_503,Hemp Grain,KS,Hemp GrainKS,3,Corn
+3KS_504,Conventional,KS,ConventionalKS,3,Corn
+3KS_505,Hemp Grain,KS,Hemp GrainKS,3,Grain
+3KS_506,Hemp Fiber,KS,Hemp FiberKS,3,Soybean
+3UK_101,Hemp Fiber,UK,Hemp FiberUK,3,Fiber
+3UK_102,Hemp Grain,UK,Hemp GrainUK,3,Grain
+3UK_103,Conventional,UK,ConventionalUK,3,Corn
+3UK_104,Hemp Fiber,UK,Hemp FiberUK,3,Soybean
+3UK_105,Hemp Grain,UK,Hemp GrainUK,3,Corn
+3UK_106,Conventional,UK,ConventionalUK,3,Soybean
+3UK_201,Hemp Grain,UK,Hemp GrainUK,3,Grain
+3UK_202,Conventional,UK,ConventionalUK,3,Soybean
+3UK_203,Hemp Grain,UK,Hemp GrainUK,3,Corn
+3UK_204,Conventional,UK,ConventionalUK,3,Corn
+3UK_205,Hemp Fiber,UK,Hemp FiberUK,3,Fiber
+3UK_206,Hemp Fiber,UK,Hemp FiberUK,3,Soybean
+3UK_301,Conventional,UK,ConventionalUK,3,Soybean
+3UK_302,Hemp Grain,UK,Hemp GrainUK,3,Corn
+3UK_303,Hemp Fiber,UK,Hemp FiberUK,3,Fiber
+3UK_304,Hemp Grain,UK,Hemp GrainUK,3,Grain
+3UK_305,Conventional,UK,ConventionalUK,3,Corn
+3UK_306,Hemp Fiber,UK,Hemp FiberUK,3,Soybean
+3UK_401,Conventional,UK,ConventionalUK,3,Corn
+3UK_402,Hemp Grain,UK,Hemp GrainUK,3,Grain
+3UK_403,Hemp Fiber,UK,Hemp FiberUK,3,Soybean
+3UK_404,Hemp Fiber,UK,Hemp FiberUK,3,Fiber
+3UK_405,Conventional,UK,ConventionalUK,3,Soybean
+3UK_406,Hemp Grain,UK,Hemp GrainUK,3,Corn
+3UK_501,Hemp Fiber,UK,Hemp FiberUK,3,Soybean
+3UK_502,Conventional,UK,ConventionalUK,3,Corn
+3UK_503,Hemp Grain,UK,Hemp GrainUK,3,Corn
+3UK_504,Conventional,UK,ConventionalUK,3,Soybean
+3UK_505,Hemp Grain,UK,Hemp GrainUK,3,Grain
+3UK_506,Hemp Fiber,UK,Hemp FiberUK,3,Fiber
