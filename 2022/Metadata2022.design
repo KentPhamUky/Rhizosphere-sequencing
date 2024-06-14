@@ -1,0 +1,61 @@
+group	Treatment	Site	combined	Year	Cashcrop
+2KS_101	Hemp Fiber	KS	Hemp FiberKS	2	Fiber
+2KS_102	Hemp Grain	KS	Hemp GrainKS	2	Grain
+2KS_103	Hemp Grain	KS	HempGrainKS	2	Corn
+2KS_104	Conventional	KS	ConventionalKS	2	Corn
+2KS_105	Conventional	KS	ConventionalKS	2	Soybean
+2KS_106	Hemp Fiber	KS	Hemp FiberKS	2	Soybean
+2KS_201	Conventional	KS	ConventionalKS	2	Soybean
+2KS_202	Hemp Fiber	KS	Hemp FiberKS	2	Fiber
+2KS_203	Hemp Fiber	KS	Hemp FiberKS	2	Soybean
+2KS_204	Hemp Grain	KS	Hemp GrainKS	2	Grain
+2KS_205	Conventional	KS	ConventionalKS	2	Corn
+2KS_206	Hemp Grain	KS	Hemp GrainKS	2	Corn
+2KS_301	Hemp Grain	KS	Hemp GrainKS	2	Corn
+2KS_302	Hemp Fiber	KS	Hemp FiberKS	2	Fiber
+2KS_303	Conventional	KS	ConventionalKS	2	Corn
+2KS_304	Conventional	KS	ConventionalKS	2	Soybean
+2KS_305	Hemp Grain	KS	Hemp GrainKS	2	Grain
+2KS_306	Hemp Fiber	KS	Hemp FiberKS	2	Soybean
+2KS_401	Hemp Grain	KS	Hemp GrainKS	2	Grain
+2KS_402	Conventional	KS	ConventionalKS	2	Soybean
+2KS_403	Conventional	KS	ConventionalKS	2	Corn
+2KS_404	Hemp Grain	KS	Hemp GrainKS	2	Corn
+2KS_405	Hemp Fiber	KS	Hemp FiberKS	2	Fiber
+2KS_406	Hemp Fiber	KS	Hemp FiberKS	2	Soybean
+2KS_501	Hemp Fiber	KS	Hemp FiberKS	2	Soybean
+2KS_502	Conventional	KS	ConventionalKS	2	Corn
+2KS_503	Hemp Grain	KS	Hemp GrainKS	2	Grain
+2KS_504	Conventional	KS	ConventionalKS	2	Soybean
+2KS_505	Hemp Grain	KS	Hemp GrainKS	2	Corn
+2KS_506	Hemp Fiber	KS	Hemp FiberKS	2	Fiber
+2UK_101	Hemp Fiber	UK	Hemp FiberUK	2	Soybean
+2UK_102	Hemp Grain	UK	Hemp GrainUK	2	Corn
+2UK_103	Conventional	UK	ConventionalUK	2	Soybean
+2UK_104	Hemp Fiber	UK	Hemp FiberUK	2	Fiber
+2UK_105	Hemp Grain	UK	Hemp GrainUK	2	Grain
+2UK_106	Conventional	UK	ConventionalUK	2	Corn
+2UK_201	Hemp Grain	UK	Hemp GrainUK	2	Corn
+2UK_202	Conventional	UK	ConventionalUK	2	Corn
+2UK_203	Hemp Grain	UK	Hemp GrainUK	2	Grain
+2UK_204	Conventional	UK	ConventionalUK	2	Soybean
+2UK_205	Hemp Fiber	UK	Hemp FiberUK	2	Soybean
+2UK_206	Hemp Fiber	UK	Hemp FiberUK	2	Fiber
+2UK_301	Conventional	UK	ConventionalUK	2	Corn
+2UK_302	Hemp Grain	UK	Hemp GrainUK	2	Grain
+2UK_303	Hemp Fiber	UK	Hemp FiberUK	2	Soybean
+2UK_304	Hemp Grain	UK	Hemp GrainUK	2	Corn
+2UK_305	Conventional	UK	ConventionalUK	2	Soybean
+2UK_306	Hemp Fiber	UK	Hemp FiberUK	2	Fiber
+2UK_401	Conventional	UK	ConventionalUK	2	Soybean
+2UK_402	Hemp Grain	UK	Hemp GrainUK	2	Corn
+2UK_403	Hemp Fiber	UK	Hemp FiberUK	2	Fiber
+2UK_404	Hemp Fiber	UK	Hemp FiberUK	2	Soybean
+2UK_405	Conventional	UK	ConventionalUK	2	Corn
+2UK_406	Hemp Grain	UK	Hemp GrainUK	2	Grain
+2UK_501	Hemp Fiber	UK	Hemp FiberUK	2	Fiber
+2UK_502	Conventional	UK	ConventionalUK	2	Soybean
+2UK_503	Hemp Grain	UK	Hemp GrainUK	2	Grain
+2UK_504	Conventional	UK	ConventionalUK	2	Corn
+2UK_505	Hemp Grain	UK	Hemp GrainUK	2	Corn
+2UK_506	Hemp Fiber	UK	Hemp FiberUK	2	Soybean

@@ -15,9 +15,9 @@ library(phyloseq)
 #Plotting theme
 theme_set(theme_bw())
 
-sharedfile = "X.shared"
-taxfile = "X.taxonomy"
-mapfile = "mothurmetadatatest.csv"
+sharedfile = "Y1.opti_mcc.0.03.subsample.shared"
+taxfile = "Y1.opti_mcc.0.03.cons.taxonomy"
+mapfile = "Metadata2021.csv"
 
 mothur_data <- import_mothur(mothur_shared_file = sharedfile,
                              mothur_constaxonomy_file = taxfile)
@@ -123,22 +123,45 @@ genus_colors <- c(
   "#AD6F3B", "#673770","#D14285", "#652926", "#C84248", 
   "#8569D5", "#5E738F","#D1A33D", "#8A7C64", "#599861"
 )
-ggplot(Clean_genus, aes(x = Plot, y = Abundance, fill = Genus)) + 
-  facet_grid(Station~.) +
+ggplot(Clean_genus, aes(x = reorder(Sample,Cashcrop), y = Abundance, fill = Genus)) + 
   geom_bar(stat = "identity") +
-  scale_fill_manual(values =genus_colors) +
-  #scale_x_discrete(
-  # breaks = c("7/8", "8/4", "9/2", "10/6"),
-  #labels = c("Jul", "Aug", "Sep", "Oct"), 
-  # drop = FALSE
-  #) +
-  # Remove x axis title
+  #scale_fill_manual(values = genus_colors) +
   theme(axis.title.x = element_blank()) + 
-  #
   guides(fill = guide_legend(reverse = TRUE, keywidth = 1, keyheight = 1)) +
   ylab("Relative Abundance (Genera > 2%) \n") +
   ggtitle("Genus Level Composition of Spring 2024 \n Bacterial Communities by Plot") 
 
+####Ordination no arrows ####
+
+# Ordinate
+Clean_pcoa <- ordinate(
+  physeq = Clean, 
+  method = "PCoA", 
+  distance = "bray"
+)
+
+# Plot 
+plot_ordination(
+  physeq = Clean,
+  ordination = Clean_pcoa,
+  color = "Treatment",
+  shape = "Site",
+  title = "PCoA of 2021"
+) + 
+  scale_color_manual(values = c("#a65628", "red", "#ffae19",
+                                "#4daf4a", "#1919ff", "darkorchid3", "magenta")
+  ) +
+  geom_point(aes(color = Treatment), alpha = 0.7, size = 4) +
+  geom_point(colour = "grey90", size = 1.5) 
+
+####Permanova####
+Clean_bray <- phyloseq::distance(Clean, method = "bray")
+
+# make a data frame from the sample_data
+sampledf <- data.frame(sample_data(moth_merge))
+
+# Adonis test
+adonis2(Clean_bray ~ Treatment+Site, data = sampledf)
 ####Ordination with arrows####
 
 bray<- phyloseq::distance(physeq = Clean, method = "bray")
