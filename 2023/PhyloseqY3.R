@@ -101,7 +101,7 @@ ggplot(Clean_phylum, aes(x = reorder(Sample,Cashcrop), y = Abundance, fill = Phy
   #
   guides(fill = guide_legend(reverse = TRUE, keywidth = 1, keyheight = 1)) +
   ylab("Relative Abundance (Phyla > 2%) \n") +
-  ggtitle("Phylum Composition of Spring 2024 \n Bacterial Communities by Plot") 
+  ggtitle("Phylum Composition of Spring 2023 \n Bacterial Communities by Plot") 
 
 
 
@@ -129,7 +129,7 @@ ggplot(Clean_genus, aes(x = reorder(Sample,Cashcrop), y = Abundance, fill = Genu
   theme(axis.title.x = element_blank()) + 
   guides(fill = guide_legend(reverse = TRUE, keywidth = 1, keyheight = 1)) +
   ylab("Relative Abundance (Genera > 2%) \n") +
-  ggtitle("Genus Level Composition of Spring 2024 \n Bacterial Communities by Plot") 
+  ggtitle("Genus Level Composition of Spring 2023 \n Bacterial Communities by Plot") 
 
 ####Ordination no arrows ####
 Clean_pcoa <- ordinate(
@@ -144,7 +144,7 @@ plot_ordination(
   ordination = Clean_pcoa,
   color = "Treatment",
   shape = "Site",
-  title = "PCoA of 2022"
+  title = "PCoA of 2023"
 ) + 
   scale_color_manual(values = c("#a65628", "red", "#ffae19",
                                 "#4daf4a", "#1919ff", "darkorchid3", "magenta")
