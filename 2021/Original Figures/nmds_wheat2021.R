@@ -10,15 +10,14 @@ library(grid)
 #reads in the metadata
 metadata <- read_excel(path="Metadata2021.xlsx")
 
-#read in the nmds axes
-nmds <- read_tsv(file="demi.thetayc.axes",col_types = cols(group=col_character()))
+#read in the PCoA axes
+PCoA <- read_tsv(file="braycurt.pcoa.axes",col_types = cols(group=col_character()))
 #Combine data
-Wheat2021 <- inner_join(metadata, nmds, by=c('group'))
-as.factor(metadata_nmds$Treatment)
+Wheat2021 <- inner_join(metadata, PCoA, by=c('group'))
 ####end####
 
 ####2021####
-NMDS2021plot = ggplot(Wheat2021, aes(x = axis1, y = axis2, shape = Site, color = Cashcrop, linetype = Site))   +
+PCoA2021plot = ggplot(Wheat2021, aes(x = axis1, y = axis2, shape = Site, color = Cashcrop, linetype = Site))   +
   geom_point(size = 2 ) +
   theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
         axis.text.x = element_text(colour = "black", face = "bold", size = 12), 
@@ -28,13 +27,13 @@ NMDS2021plot = ggplot(Wheat2021, aes(x = axis1, y = axis2, shape = Site, color =
         legend.title = element_text(size = 14, colour = "black", face = "bold"), 
         panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
         legend.key=element_blank()) +  
-  labs(x = "NMDS1", colour = "Treatment", y = "NMDS2", shape = "Site")+ 
+  labs(x = "PC1 (32.6%)", colour = "Treatment", y = "PC2 (10.5%)", shape = "Site")+ 
   stat_ellipse(lwd=1)+
   ggtitle("Spring 2021 Wheat Rhizosphere Microbial Community") + theme(plot.title = element_text(size=20, hjust = 0.5)) +
-  annotate(geom="text", x= .43, y=.5, label="Stress = 0.151 \n Rsq = 0.911 \n 95% confidence",
-           color="black", size = 6) +
+  #annotate(geom="text", x= .43, y=.5, label="Stress = 0.151 \n Rsq = 0.911 \n 95% confidence",
+   #        color="black", size = 6) +
   theme_classic()
-NMDS2021plot
-ggsave("NMDS 2021.tiff", height = 8, width = 10, units = "in")
+PCoA2021plot
+ggsave("PCoA 2021.tiff", height = 8, width = 10, units = "in")
 
 ####end####
