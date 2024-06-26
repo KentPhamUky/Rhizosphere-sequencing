@@ -97,11 +97,11 @@ ggplot(Clean_phylum, aes(x = reorder(Sample,Cashcrop), y = Abundance, fill = Phy
   #facet_grid(Station~.) +
   geom_bar(stat = "identity") +
   scale_fill_manual(values = phylum_colors) +
-  theme(axis.title.x = element_blank()) + 
+  theme(axis.title.x = element_blank(),axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
   #
   guides(fill = guide_legend(reverse = TRUE, keywidth = 1, keyheight = 1)) +
   ylab("Relative Abundance (Phyla > 2%) \n") +
-  ggtitle("Phylum Composition of Spring 2024 \n Bacterial Communities by Plot") 
+  ggtitle("Phylum Composition of Spring 2021 \n Bacterial Communities by Plot") 
 
 
 
@@ -174,6 +174,7 @@ cap_ord <- ordinate(
   distance = bray,
   formula = ~ soilpH + P.kg.ha. + K.kg.ha. + Ca.kg.ha. + Mg.kg.ha. + Zn.kg.ha.
 )
+
 
 # CAP plot
 cap_plot <- plot_ordination(
