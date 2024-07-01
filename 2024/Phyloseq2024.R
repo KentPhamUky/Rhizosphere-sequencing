@@ -15,8 +15,8 @@ library(phyloseq)
 #Plotting theme
 theme_set(theme_bw())
 
-sharedfile = "Y4.opti_mcc.0.03.subsample.shared"
-taxfile = "Y4.opti_mcc.0.03.cons.taxonomy"
+sharedfile = "Y4.final.opti_mcc.0.03.subsample.shared"
+taxfile = "Y4.final.opti_mcc.0.03.cons.taxonomy"
 mapfile = "Metadata2024.csv"
 
 mothur_data <- import_mothur(mothur_shared_file = sharedfile,
