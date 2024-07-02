@@ -142,14 +142,14 @@ Clean_pcoa <- ordinate(
 plot_ordination(
   physeq = Clean,
   ordination = Clean_pcoa,
-  color = "Treatment",
+  color = "Cashcrop",
   shape = "Site",
   title = "PCoA of 2022"
 ) + 
   scale_color_manual(values = c("#a65628", "red", "#ffae19",
                                 "#4daf4a", "#1919ff", "darkorchid3", "magenta")
   ) +
-  geom_point(aes(color = Treatment), alpha = 0.7, size = 4) +
+  geom_point(aes(color = Cashcrop), alpha = 0.7, size = 4) +
   geom_point(colour = "grey90", size = 1.5) 
 
 ####Permanova####
