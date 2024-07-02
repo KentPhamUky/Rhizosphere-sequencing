@@ -97,7 +97,7 @@ ggplot(Clean_phylum, aes(x = reorder(Sample,Cashcrop), y = Abundance, fill = Phy
   #facet_grid(Station~.) +
   geom_bar(stat = "identity") +
   scale_fill_manual(values = phylum_colors) +
-  theme(axis.title.x = element_blank()) + 
+  theme(axis.title.x = element_blank(), axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
   #
   guides(fill = guide_legend(reverse = TRUE, keywidth = 1, keyheight = 1)) +
   ylab("Relative Abundance (Phyla > 2%) \n") +
@@ -146,7 +146,7 @@ plot_ordination(
   ordination = Clean_pcoa,
   color = "Treatment",
   shape = "Site",
-  title = "PCoA of 2024"
+  title = "PCoA of 2024 by Treatment"
 ) + 
   scale_color_manual(values = c("#a65628", "red", "#ffae19",
                                 "#4daf4a", "#1919ff", "darkorchid3", "magenta")
@@ -174,6 +174,7 @@ cap_ord <- ordinate(
   distance = bray,
   formula = ~ soilpH + P.kg.ha. + K.kg.ha. + Ca.kg.ha. + Mg.kg.ha. + Zn.kg.ha.
 )
+
 
 # CAP plot
 cap_plot <- plot_ordination(
