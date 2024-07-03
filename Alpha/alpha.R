@@ -1,7 +1,7 @@
 library(tidyverse)
 library(readxl)
 metadata = read_csv(file="Metadata.csv")
-AlphaDiversity = read_csv(file="alphadiversity.csv")
+AlphaDiversity = read_csv(file="alphatotal.summary.csv")
 Mixed = inner_join(metadata, AlphaDiversity, by=c('group'))
 
 alphaplot = ggplot(Mixed, aes(x = Treatment, y = invsimpson, fill=Treatment)) +
@@ -68,5 +68,3 @@ summary(aovY4div)
 aovY4rich = aov(sobs~Treatment, data=Year4)
 summary(aovY4rich)
 
-
-print(LSD.test(model,"technique"))
