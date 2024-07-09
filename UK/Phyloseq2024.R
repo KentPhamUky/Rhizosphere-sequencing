@@ -84,7 +84,7 @@ Clean_phylum <- Clean %>%
   tax_glom(taxrank = "Phylum") %>%                     # agglomerate at phylum level
   transform_sample_counts(function(x) {x/sum(x)} ) %>% # Transform to rel. abundance
   psmelt() %>%                                         # Melt to long format
-  filter(Abundance > 0.02) %>%                         # Filter out low abundance taxa
+  filter(Abundance > 0.01) %>%                         # Filter out low abundance taxa
   arrange(Phylum)                                      # Sort data frame alphabetically by phylum
 
 # Plot
@@ -93,15 +93,19 @@ phylum_colors <- c(
   "#AD6F3B", "#673770","#D14285", "#652926", "#C84248", 
   "#8569D5", "#5E738F","#D1A33D", "#8A7C64", "#599861"
 )
-ggplot(Clean_phylum, aes(x = reorder(Sample,Cashcrop), y = Abundance, fill = Phylum)) + 
+
+Yearcomp = subset(Clean_phylum, Year == 1 | Year == 4)
+
+ggplot(Yearcomp, aes(x = reorder(Sample,Cashcrop), y = Abundance, fill = Phylum)) + 
   #facet_grid(Station~.) +
-  geom_bar(stat = "identity") +
+  geom_bar(stat = "identity", width = .85) +
   scale_fill_manual(values = phylum_colors) +
   theme(axis.title.x = element_blank(), axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
   #
   guides(fill = guide_legend(reverse = TRUE, keywidth = 1, keyheight = 1)) +
-  ylab("Relative Abundance (Phyla > 2%) \n") +
-  ggtitle("Phylum Composition of Spring 2024 \n Bacterial Communities by Plot") 
+  ylab("Relative Abundance (Phyla > 1%) \n") +
+  ggtitle("Phylum Composition of Spring 2024 \n Bacterial Communities by Plot") +
+  geom_vline(xintercept = 30.5)
 
 
 
