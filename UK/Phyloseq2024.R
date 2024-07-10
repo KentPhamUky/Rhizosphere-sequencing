@@ -3,7 +3,7 @@ if (!require("BiocManager", quietly = TRUE))
 
 BiocManager::install("phyloseq")
 
-library(ggplot2)
+ library(ggplot2)
 library(vegan)
 library(plyr)
 library(dplyr)
@@ -23,6 +23,7 @@ mothur_data <- import_mothur(mothur_shared_file = sharedfile,
                              mothur_constaxonomy_file = taxfile)
 # Import sample metadata
 map <- read.csv(mapfile)
+map = subset(map, Year != "1")
 map$Year <- as.factor(map$Year)
 map <- sample_data(map)
 
@@ -148,14 +149,14 @@ Clean_pcoa <- ordinate(
 plot_ordination(
   physeq = Clean,
   ordination = Clean_pcoa,
-  color = "Year",
-  shape = "Treatment",
+  color = "Cashcrop",
+  shape = "Year",
   title = "PCoA of 2024 by Year and Treatment"
 ) + 
   scale_color_manual(values = c("#a65628", "red", "#ffae19",
                                 "#4daf4a", "#1919ff", "darkorchid3", "magenta")
   ) +
-  geom_point(aes(color = Year), alpha = 0.7, size = 4) +
+  geom_point(aes(color = Cashcrop), alpha = 0.7, size = 4) +
   geom_point(colour = "grey90", size = 1.5) 
 
 ####Permanova####
@@ -165,7 +166,7 @@ Clean_bray <- phyloseq::distance(Clean, method = "bray")
 sampledf <- data.frame(sample_data(moth_merge))
 
 # Adonis test
-adonis2(Clean_bray ~ Treatment+Year, data = sampledf)
+adonis2(Clean_bray ~ Cashcrop*Year, data = sampledf)
 ####Ordination with arrows####
 
 bray<- phyloseq::distance(physeq = Clean, method = "bray")
