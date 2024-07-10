@@ -105,7 +105,7 @@ ggplot(Yearcomp, aes(x = reorder(Sample,Cashcrop), y = Abundance, fill = Phylum)
   guides(fill = guide_legend(reverse = TRUE, keywidth = 1, keyheight = 1)) +
   ylab("Relative Abundance (Phyla > 1%) \n") +
   ggtitle("Phylum Composition of Spring 2024 \n Bacterial Communities by Plot") +
-  geom_vline(xintercept = 30.5)
+  geom_vline(xintercept = 30.45)
 
 
 
