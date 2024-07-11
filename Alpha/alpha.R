@@ -4,7 +4,7 @@ metadata = read_csv(file="Metadata.csv")
 AlphaDiversity = read_csv(file="alphatotal.summary.csv")
 Mixed = inner_join(metadata, AlphaDiversity, by=c('group'))
 
-alphaplot = ggplot(Mixed, aes(x = Treatment, y = invsimpson, fill=Treatment)) +
+alphaplot = ggplot(Mixed, aes(x = Site, y = invsimpson, fill=Treatment)) +
   geom_boxplot(width=0.7) +
   facet_wrap(~Year) +
   theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
@@ -20,7 +20,7 @@ alphaplot = ggplot(Mixed, aes(x = Treatment, y = invsimpson, fill=Treatment)) +
   theme_classic()
 alphaplot
 
-richnessplot = ggplot(Mixed, aes(x = Treatment, y = sobs, fill=Treatment)) +
+richnessplot = ggplot(Mixed, aes(x = Site, y = sobs, fill=Treatment)) +
   geom_boxplot(width=0.7) +
   facet_wrap(~Year) +
   theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
