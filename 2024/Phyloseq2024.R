@@ -1,7 +1,10 @@
+library(devtools)
 if (!require("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
 BiocManager::install("phyloseq")
+BiocManager::install("microbiome")
+install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
 
 library(ggplot2)
 library(vegan)
@@ -11,6 +14,9 @@ library(scales)
 library(grid)
 library(reshape2)
 library(phyloseq)
+library(microbiome)
+library(pairwiseAdonis)
+
 ####Loading in####
 #Plotting theme
 theme_set(theme_bw())
@@ -162,9 +168,15 @@ sampledf <- data.frame(sample_data(moth_merge))
 
 # Adonis test
 adonis2(Clean_bray ~ Fulltreat+Site, data = sampledf)
+
+pairwise.adonis2(Clean_bray ~ Fulltreat+Site, data = sampledf)
+
+
+
 ####Ordination with arrows####
 
 bray<- phyloseq::distance(physeq = Clean, method = "bray")
+
 
 
 # CAP ordinate

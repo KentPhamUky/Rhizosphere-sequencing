@@ -2,8 +2,10 @@ if (!require("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
 BiocManager::install("phyloseq")
+BiocManager::install("microbiome")
+install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
 
- library(ggplot2)
+library(ggplot2)
 library(vegan)
 library(plyr)
 library(dplyr)
@@ -11,6 +13,8 @@ library(scales)
 library(grid)
 library(reshape2)
 library(phyloseq)
+library(microbiome)
+library(pairwiseAdonis)
 ####Loading in####
 #Plotting theme
 theme_set(theme_bw())
@@ -23,7 +27,7 @@ mothur_data <- import_mothur(mothur_shared_file = sharedfile,
                              mothur_constaxonomy_file = taxfile)
 # Import sample metadata
 map <- read.csv(mapfile)
-map = subset(map, Year != "1")
+map = subset(map, Year == "3" | Year == "4")
 map$Year <- as.factor(map$Year)
 map <- sample_data(map)
 
@@ -34,9 +38,7 @@ moth_merge <- merge_phyloseq(mothur_data, map)
 colnames(tax_table(moth_merge)) <- c("Kingdom", "Phylum", "Class", 
                                      "Order", "Family", "Genus")
 
-#moth_sub <- moth_merge %>%
-#subset_samples(Type == "Cashcrop") %>%
-# prune_taxa(taxa_sums(.) > 0, .)
+
 
 
 
@@ -149,14 +151,14 @@ Clean_pcoa <- ordinate(
 plot_ordination(
   physeq = Clean,
   ordination = Clean_pcoa,
-  color = "Cashcrop",
+  color = "Timtest",
   shape = "Year",
-  title = "PCoA of 2024 by Year and Treatment"
+  title = "PCoA of Tim Test"
 ) + 
   scale_color_manual(values = c("#a65628", "red", "#ffae19",
                                 "#4daf4a", "#1919ff", "darkorchid3", "magenta")
   ) +
-  geom_point(aes(color = Cashcrop), alpha = 0.7, size = 4) +
+  geom_point(aes(color = Timtest), alpha = 0.7, size = 4) +
   geom_point(colour = "grey90", size = 1.5) 
 
 ####Permanova####
@@ -166,7 +168,9 @@ Clean_bray <- phyloseq::distance(Clean, method = "bray")
 sampledf <- data.frame(sample_data(moth_merge))
 
 # Adonis test
-adonis2(Clean_bray ~ Cashcrop*Year, data = sampledf)
+adonis2(Clean_bray ~ Timtest*Year, data = sampledf)
+pairwise.adonis2(Clean_bray ~ Timtest+Year, data = sampledf)
+
 ####Ordination with arrows####
 
 bray<- phyloseq::distance(physeq = Clean, method = "bray")
