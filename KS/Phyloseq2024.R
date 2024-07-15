@@ -19,8 +19,8 @@ library(pairwiseAdonis)
 #Plotting theme
 theme_set(theme_bw())
 
-sharedfile = "UK.final.opti_mcc.0.03.subsample.shared"
-taxfile = "UK.final.opti_mcc.0.03.cons.taxonomy"
+sharedfile = "KS.final.opti_mcc.0.03.subsample.shared"
+taxfile = "KS.final.opti_mcc.0.03.cons.taxonomy"
 mapfile = "MetadataUK.csv"
 
 mothur_data <- import_mothur(mothur_shared_file = sharedfile,

@@ -69,3 +69,38 @@ summary(aovY4div)
 aovY4rich = aov(sobs~Treatment, data=Year4)
 summary(aovY4rich)
 
+
+KStest = subset(Mixed, Site =="KS")
+
+Conventional = subset(KStest, Treatment == "Conventional")
+Fiber = subset(KStest, Treatment == "Hemp Fiber")
+Grain = subset(KStest, Treatment == "Hemp Grain")
+
+aovConvdiv = aov(invsimpson ~ Year, data = Conventional)
+summary(aovConvdiv)
+aovConvrich = aov(sobs ~ Year, data = Conventional)
+summary(aovConvrich)
+
+aovFibdiv = aov(invsimpson ~ Year, data = Fiber)
+summary(aovFibdiv)
+aovFibrich = aov(sobs ~ Year, data = Fiber)
+summary(aovFibrich)
+
+aovGraindiv = aov(invsimpson ~ Year, data = Grain)
+summary(aovGraindiv)
+aovGrainrich = aov(sobs ~ Year, data = Grain)
+summary(aovGrainrich)
+
+
+Year1 = subset(Mixed, Year == "1")
+Year4 = subset(Mixed, Year == "4")
+
+aovY1div = aov(invsimpson ~ Treatment, data=Year1)
+summary(aovY1div)
+aovY1rich = aov(sobs~Treatment, data=Year1)
+summary(aovY1rich)
+aovY4div = aov(invsimpson ~ Treatment, data=Year4)
+summary(aovY4div)
+aovY4rich = aov(sobs~Treatment, data=Year4)
+summary(aovY4rich)
+
