@@ -29,7 +29,7 @@ mothur_data <- import_mothur(mothur_shared_file = sharedfile,
                              mothur_constaxonomy_file = taxfile)
 # Import sample metadata
 map <- read.csv(mapfile)
-
+map <- subset(map, Site== "KS")
 map <- sample_data(map)
 
 # Assign rownames to be Sample ID's
@@ -167,9 +167,9 @@ Clean_bray <- phyloseq::distance(Clean, method = "bray")
 sampledf <- data.frame(sample_data(moth_merge))
 
 # Adonis test
-adonis2(Clean_bray ~ Fulltreat+Site, data = sampledf)
+adonis2(Clean_bray ~ Fulltreat, data = sampledf)
 
-pairwise.adonis2(Clean_bray ~ Fulltreat+Site, data = sampledf)
+pairwise.adonis2(Clean_bray ~ Fulltreat, data = sampledf)
 
 
 
