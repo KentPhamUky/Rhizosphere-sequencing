@@ -168,8 +168,8 @@ Clean_bray <- phyloseq::distance(Clean, method = "bray")
 sampledf <- data.frame(sample_data(moth_merge))
 
 # Adonis test
-adonis2(Clean_bray ~ Treatment*Year, data = sampledf)
-pairwise.adonis2(Clean_bray ~ Treatment+Year, data = sampledf)
+adonis2(Clean_bray ~ Timtest, data = sampledf)
+pairwise.adonis2(Clean_bray ~ Timtest, data = sampledf)
 
 ####Ordination with arrows####
 
