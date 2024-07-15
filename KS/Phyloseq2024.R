@@ -151,14 +151,14 @@ Clean_pcoa <- ordinate(
 plot_ordination(
   physeq = Clean,
   ordination = Clean_pcoa,
-  color = "Timtest",
-  shape = "Year",
-  title = "PCoA of Tim Test"
+  color = "Year",
+  shape = "Treatment",
+  title = "PCoA KS 2024 by Year and Treatment"
 ) + 
   scale_color_manual(values = c("#a65628", "red", "#ffae19",
                                 "#4daf4a", "#1919ff", "darkorchid3", "magenta")
   ) +
-  geom_point(aes(color = Timtest), alpha = 0.7, size = 4) +
+  geom_point(aes(color = Year), alpha = 0.7, size = 4) +
   geom_point(colour = "grey90", size = 1.5) 
 
 ####Permanova####
@@ -168,8 +168,8 @@ Clean_bray <- phyloseq::distance(Clean, method = "bray")
 sampledf <- data.frame(sample_data(moth_merge))
 
 # Adonis test
-adonis2(Clean_bray ~ Timtest*Year, data = sampledf)
-pairwise.adonis2(Clean_bray ~ Timtest+Year, data = sampledf)
+adonis2(Clean_bray ~ Treatment*Year, data = sampledf)
+pairwise.adonis2(Clean_bray ~ Treatment+Year, data = sampledf)
 
 ####Ordination with arrows####
 
