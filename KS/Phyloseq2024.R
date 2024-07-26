@@ -118,10 +118,11 @@ ggplot(Yearcomp, aes(x = reorder(Sample,Cashcrop), y = Abundance, fill = Phylum)
 ####Genus Graph####
 
 Clean_genus <- Clean %>%
-  tax_glom(taxrank = "Genus") %>%                     # agglomerate at phylum level
+  tax_glom(taxrank = "Genus") %>%                     # agglomerate at genus level
   transform_sample_counts(function(x) {x/sum(x)} ) %>% # Transform to rel. abundance
   psmelt() %>%                                         # Melt to long format
   filter(Abundance > 0.02) %>%                         # Filter out low abundance taxa
+  filter(!grepl("unclassified", Genus)) %>%
   arrange(Genus)                                      # Sort data frame alphabetically by genera
 
 # Plot
