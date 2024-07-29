@@ -1,0 +1,87 @@
+Windows version
+
+Using Boost
+mothur v.1.48.0
+Last updated: 5/20/22
+by
+Patrick D. Schloss
+
+Department of Microbiology & Immunology
+
+University of Michigan
+http://www.mothur.org
+
+When using, please cite:
+Schloss, P.D., et al., Introducing mothur: Open-source, platform-independent, community-supported software for describing and comparing microbial communities. Appl Environ Microbiol, 2009. 75(23):7537-41.
+
+Distributed under the GNU General Public License
+
+Type 'help()' for information on the commands that are available
+
+For questions and analysis support, please visit our forum at https://forum.mothur.org
+
+Type 'quit()' to exit program
+
+[NOTE]: Setting random seed to 19760620.
+
+Interactive Mode
+
+
+
+mothur > 
+lefse(shared=trimshared.shared, design=UKmothur.design)
+[ERROR]: Your design file contains more than 1 group named 4, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named Grain, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named Soybean, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named 4, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named UK, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named UK, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named Grain, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named Hemp, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named Soybean, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named 4, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named 4, group names must be unique. Please correct.
+
+mothur > 
+lefse(shared=trimshared.shared, design=UKmothur.design)
+
+You did not provide a class, using Year.
+
+
+Comparing 4-1:
+0.03
+
+Number of significantly discriminative features: 1975 ( 3657 ) before internal wilcoxon.
+Number of discriminative features with abs LDA score > 2 : 614.
+
+Output File Names: 
+trimshared.0.03.lefse_summary
+
+
+mothur > 
+lefse(shared=trimshared.shared, design=UKmothur.design)
+[ERROR]: Your design file contains more than 1 group named Fiber, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named Hemp, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named Hemp, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named Fiber, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named Hemp, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named Grain, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named Hemp, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named Grain, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named Conventional, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named Hemp, group names must be unique. Please correct.
+[ERROR]: Your design file contains more than 1 group named Grain, group names must be unique. Please correct.
+
+mothur > 
+lefse(shared=trimshared.shared, design=UKmothur.design)
+
+You did not provide a class, using Treatment.
+
+0.03
+
+Number of significantly discriminative features: 89 ( 410 ) before internal wilcoxon.
+Number of discriminative features with abs LDA score > 2 : 9.
+
+Output File Names: 
+trimshared.0.03.lefse_summary
+
