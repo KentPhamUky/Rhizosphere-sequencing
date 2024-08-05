@@ -27,7 +27,7 @@ mothur_data <- import_mothur(mothur_shared_file = sharedfile,
                              mothur_constaxonomy_file = taxfile)
 # Import sample metadata
 map <- read.csv(mapfile)
-map = subset(map, Year == "3" | Year == "4")
+#map = subset(map, Year == "3" | Year == "4")
 map$Year <- as.factor(map$Year)
 map <- sample_data(map)
 
@@ -152,14 +152,14 @@ Clean_pcoa <- ordinate(
 plot_ordination(
   physeq = Clean,
   ordination = Clean_pcoa,
-  color = "Timtest",
-  shape = "Year",
-  title = "PCoA of Tim Test"
+  color = "Year",
+  shape = "Treatment",
+  title = "PCoA of UK plots"
 ) + 
   scale_color_manual(values = c("#a65628", "red", "#ffae19",
                                 "#4daf4a", "#1919ff", "darkorchid3", "magenta")
   ) +
-  geom_point(aes(color = Timtest), alpha = 0.7, size = 4) +
+  geom_point(aes(color = Year), alpha = 0.7, size = 4) +
   geom_point(colour = "grey90", size = 1.5) 
 
 ####Permanova####

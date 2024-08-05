@@ -27,7 +27,7 @@ mothur_data <- import_mothur(mothur_shared_file = sharedfile,
                              mothur_constaxonomy_file = taxfile)
 # Import sample metadata
 map <- read.csv(mapfile)
-map = subset(map, Year == "3" | Year == "4")
+#map = subset(map, Year == "3" | Year == "4")
 map$Year <- as.factor(map$Year)
 map <- sample_data(map)
 
@@ -153,8 +153,8 @@ plot_ordination(
   physeq = Clean,
   ordination = Clean_pcoa,
   color = "Year",
-  shape = "Treatment",
-  title = "PCoA KS 2024 by Year and Treatment"
+  shape = "IndividualTreatment",
+  title = "PCoA of KS Plots"
 ) + 
   scale_color_manual(values = c("#a65628", "red", "#ffae19",
                                 "#4daf4a", "#1919ff", "darkorchid3", "magenta")
