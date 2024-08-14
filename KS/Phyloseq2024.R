@@ -29,6 +29,7 @@ mothur_data <- import_mothur(mothur_shared_file = sharedfile,
 map <- read.csv(mapfile)
 #map = subset(map, Year == "3" | Year == "4")
 map$Year <- as.factor(map$Year)
+map$plot <- as.factor(map$plot)
 map <- sample_data(map)
 
 # Assign rownames to be Sample ID's
@@ -99,15 +100,16 @@ phylum_colors <- c(
 
 Yearcomp = subset(Clean_phylum, Year == 1 | Year == 4)
 
-ggplot(Yearcomp, aes(x = reorder(Sample,Cashcrop), y = Abundance, fill = Phylum)) + 
+ggplot(Yearcomp, aes(x = plot, y = Abundance, fill = Phylum)) + 
   #facet_grid(Station~.) +
   geom_bar(stat = "identity", width = .85) +
+  facet_wrap(~Year) +
   scale_fill_manual(values = phylum_colors) +
   theme(axis.title.x = element_blank(), axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
   #
   guides(fill = guide_legend(reverse = TRUE, keywidth = 1, keyheight = 1)) +
   ylab("Relative Abundance (Phyla > 1%) \n") +
-  ggtitle("Phylum Composition of Spring 2024 \n Bacterial Communities by Plot") +
+  ggtitle("Phylum Composition of Spring 2024 \n KS Bacterial Communities by Plot") +
   geom_vline(xintercept = 30.45)
 
 
