@@ -28,6 +28,7 @@ mothur_data <- import_mothur(mothur_shared_file = sharedfile,
 # Import sample metadata
 map <- read.csv(mapfile)
 #map = subset(map, Year == "3" | Year == "4")
+map = subset(map, Year != "1")
 map$Year <- as.factor(map$Year)
 map$plot <- as.factor(map$plot)
 map <- sample_data(map)
@@ -100,23 +101,14 @@ phylum_colors <- c(
 
 Yearcomp = subset(Clean_phylum, Year == 1 | Year == 4)
 
-ggplot(Yearcomp, aes(x = plot, y = Abundance, fill = Phylum)) + 
-  #facet_grid(Station~.) +
+ggplot(Yearcomp, aes(x = Block, y = Abundance, fill = Phylum)) + 
+  facet_grid(vars(Year),vars(IndividualTreatment)) +
   geom_bar(stat = "identity", width = .85) +
-  facet_wrap(~Year) +
   scale_fill_manual(values = phylum_colors) +
   theme(axis.title.x = element_blank(), axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
-  #
   guides(fill = guide_legend(reverse = TRUE, keywidth = 1, keyheight = 1)) +
   ylab("Relative Abundance (Phyla > 1%) \n") +
-  ggtitle("Phylum Composition of Spring 2024 \n UK Bacterial Communities by Plot") 
-  #geom_vline(xintercept = 30.45)
-
-
-
-ggplot(Yearcomp, aes(x = Sample, y = Abundance, fill = Phylum)) +
-  geom_bar(stat = "identity", width = .85) +
-  facet_grid(~Year) 
+  ggtitle("UK Phylum Composition \nBacterial Communities by Treatment") 
 
 
 ####Genus Graph####
@@ -156,14 +148,14 @@ Clean_pcoa <- ordinate(
 plot_ordination(
   physeq = Clean,
   ordination = Clean_pcoa,
-  color = "Year",
-  shape = "Treatment",
-  title = "PCoA of UK plots"
+  color = "Crop",
+  shape = "Year",
+  title = "PCoA of Crop Effect on UK Plots"
 ) + 
   scale_color_manual(values = c("#a65628", "red", "#ffae19",
                                 "#4daf4a", "#1919ff", "darkorchid3", "magenta")
   ) +
-  geom_point(aes(color = Year), alpha = 0.7, size = 4) +
+  geom_point(aes(color = Crop), alpha = 0.7, size = 4) +
   geom_point(colour = "grey90", size = 1.5) 
 
 ####Permanova####
@@ -173,9 +165,8 @@ Clean_bray <- phyloseq::distance(Clean, method = "bray")
 sampledf <- data.frame(sample_data(moth_merge))
 
 # Adonis test
-adonis2(Clean_bray ~ Timtest*Year, data = sampledf)
-pairwise.adonis2(Clean_bray ~ Timtest+Year, data = sampledf)
-
+adonis2(Clean_bray ~ Timtest, data = sampledf)
+pairwise.adonis2(Clean_bray ~ Crop, data = sampledf)
 ####Ordination with arrows####
 
 bray<- phyloseq::distance(physeq = Clean, method = "bray")
