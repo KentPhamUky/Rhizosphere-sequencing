@@ -106,7 +106,6 @@ ggplot(Yearcomp, aes(x = Block, y = Abundance, fill = Phylum)) +
   guides(fill = guide_legend(reverse = TRUE, keywidth = 1, keyheight = 1)) +
   ylab("Relative Abundance (Phyla > 1%) \n") +
   ggtitle("KS Phylum Composition \nBacterial Communities by Treatment") 
-
 ####Genus Graph####
 
 Clean_genus <- Clean %>%
