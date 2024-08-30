@@ -27,7 +27,7 @@ mothur_data <- import_mothur(mothur_shared_file = sharedfile,
                              mothur_constaxonomy_file = taxfile)
 # Import sample metadata
 map <- read.csv(mapfile)
-#map = subset(map, Year == "3" | Year == "4")
+map = subset(map, Year != "1")
 map$Year <- as.factor(map$Year)
 map <- sample_data(map)
 
@@ -37,7 +37,6 @@ rownames(map) <- map$group
 moth_merge <- merge_phyloseq(mothur_data, map)
 colnames(tax_table(moth_merge)) <- c("Kingdom", "Phylum", "Class", 
                                      "Order", "Family", "Genus")
-
 
 
 
@@ -99,21 +98,14 @@ phylum_colors <- c(
 
 Yearcomp = subset(Clean_phylum, Year == 1 | Year == 4)
 
-ggplot(Yearcomp, aes(x = reorder(Sample,Cashcrop), y = Abundance, fill = Phylum)) + 
-  #facet_grid(Station~.) +
+ggplot(Yearcomp, aes(x = Block, y = Abundance, fill = Phylum)) + 
+  facet_grid(vars(Year),vars(IndividualTreatment)) +
   geom_bar(stat = "identity", width = .85) +
   scale_fill_manual(values = phylum_colors) +
   theme(axis.title.x = element_blank(), axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
-  #
   guides(fill = guide_legend(reverse = TRUE, keywidth = 1, keyheight = 1)) +
   ylab("Relative Abundance (Phyla > 1%) \n") +
-  ggtitle("Phylum Composition of Spring 2024 \n Bacterial Communities by Plot") +
-  geom_vline(xintercept = 30.45)
-
-
-
-
-
+  ggtitle("KS Phylum Composition \nBacterial Communities by Treatment") 
 
 ####Genus Graph####
 
@@ -152,14 +144,14 @@ Clean_pcoa <- ordinate(
 plot_ordination(
   physeq = Clean,
   ordination = Clean_pcoa,
-  color = "Year",
-  shape = "IndividualTreatment",
-  title = "PCoA of KS Plots"
+  color = "Crop",
+  shape = "Year",
+  title = "PCoA of Crop Effect on KS Plots"
 ) + 
   scale_color_manual(values = c("#a65628", "red", "#ffae19",
                                 "#4daf4a", "#1919ff", "darkorchid3", "magenta")
   ) +
-  geom_point(aes(color = Year), alpha = 0.7, size = 4) +
+  geom_point(aes(color = Crop), alpha = 0.7, size = 4) +
   geom_point(colour = "grey90", size = 1.5) 
 
 ####Permanova####
@@ -170,7 +162,7 @@ sampledf <- data.frame(sample_data(moth_merge))
 
 # Adonis test
 adonis2(Clean_bray ~ Timtest, data = sampledf)
-pairwise.adonis2(Clean_bray ~ Timtest, data = sampledf)
+pairwise.adonis2(Clean_bray ~ Cashcrop, data = sampledf)
 
 ####Ordination with arrows####
 
