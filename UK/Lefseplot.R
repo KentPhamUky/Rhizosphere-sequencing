@@ -3,8 +3,20 @@ library(tidyverse)
 library(readxl)
 
 
-metadata <- read_excel(path="Lefseplotyear.xlsx")
+lefse <- read_excel(path="Lefsefigure.xlsx")
+lefse$Year = as.factor(lefse$Year)
+lefse$Taxonomy <- factor(lefse$Taxonomy, levels = lefse$Taxonomy)
 
-plot = ggplot(data, aes(x=name, y=value, colour = Year)) + 
+plot_colors <- c(
+  "#CBD588", "#5F7FC7", "orange","#DA5724", "#508578"
+)
+  
+
+
+
+plot = ggplot(lefse, aes(x=Taxonomy, y=LDA, fill = Year)) + 
   geom_bar(stat = "identity") +
-  coord_flip()
+  coord_flip() +
+  scale_fill_manual(values = plot_colors) +
+  ggtitle("LEFSE Analysis by Year")
+plot
