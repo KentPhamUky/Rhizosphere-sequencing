@@ -5,7 +5,7 @@ AlphaDiversity = read_csv(file="alphatotal.summary.csv")
 Mixed = inner_join(metadata, AlphaDiversity, by=c('group'))
 Mixed$Year = as.factor(Mixed$Year)
 
-alphaplot = ggplot(Mixed, aes(x = Treatment, y = invsimpson, fill= Year)) +
+alphaplot = ggplot(Mixed, aes(x = Rotation, y = invsimpson, fill= Year)) +
   geom_boxplot(width=0.7) +
   facet_wrap(~Site) +
   theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
@@ -21,7 +21,7 @@ alphaplot = ggplot(Mixed, aes(x = Treatment, y = invsimpson, fill= Year)) +
   theme_classic()
 alphaplot
 
-richnessplot = ggplot(Mixed, aes(x = Treatment, y = sobs, fill=Year)) +
+richnessplot = ggplot(Mixed, aes(x = Rotation, y = sobs, fill=Year)) +
   geom_boxplot(width=0.7) +
   facet_wrap(~Site) +
   theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
@@ -37,9 +37,11 @@ richnessplot = ggplot(Mixed, aes(x = Treatment, y = sobs, fill=Year)) +
   theme_classic()
 richnessplot
 
-Conventional = subset(Mixed, Treatment == "Conventional")
-Fiber = subset(Mixed, Treatment == "Hemp Fiber")
-Grain = subset(Mixed, Treatment == "Hemp Grain")
+UKtest = subset(Mixed, Site =="UK")
+
+Conventional = subset(UKtest, Treatment == "Conventional")
+Fiber = subset(UKtest, Treatment == "Hemp Fiber")
+Grain = subset(UKtest, Treatment == "Hemp Grain")
 
 aovConvdiv = aov(invsimpson ~ Year, data = Conventional)
 summary(aovConvdiv)
@@ -57,16 +59,16 @@ aovGrainrich = aov(sobs ~ Year, data = Grain)
 summary(aovGrainrich)
 
 
-Year1 = subset(Mixed, Year == "1")
-Year4 = subset(Mixed, Year == "4")
+Year1 = subset(UKtest, Year == "1")
+Year4 = subset(UKtest, Year == "4")
 
-aovY1div = aov(invsimpson ~ Treatment, data=Year1)
+aovY1div = aov(invsimpson ~ Rotation, data=Year1)
 summary(aovY1div)
-aovY1rich = aov(sobs~Treatment, data=Year1)
+aovY1rich = aov(sobs~Rotation, data=Year1)
 summary(aovY1rich)
-aovY4div = aov(invsimpson ~ Treatment, data=Year4)
+aovY4div = aov(invsimpson ~ Rotation, data=Year4)
 summary(aovY4div)
-aovY4rich = aov(sobs~Treatment, data=Year4)
+aovY4rich = aov(sobs~Rotation, data=Year4)
 summary(aovY4rich)
 
 
