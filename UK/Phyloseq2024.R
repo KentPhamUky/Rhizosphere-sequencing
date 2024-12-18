@@ -108,7 +108,7 @@ ggplot(Yearcomp, aes(x = Block, y = Abundance, fill = Phylum)) +
   theme(axis.title.x = element_blank(), axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
   guides(fill = guide_legend(reverse = TRUE, keywidth = 1, keyheight = 1)) +
   ylab("Relative Abundance (Phyla > 1%) \n") +
-  ggtitle("UK Phylum Composition \nBacterial Communities by Treatment") 
+  ggtitle("UK Microbial Community Composition \nBacterial Communities by Rotation and Year") 
 
 
 ####Genus Graph####
