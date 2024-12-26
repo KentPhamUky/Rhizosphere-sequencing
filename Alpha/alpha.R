@@ -4,10 +4,11 @@ metadata = read_csv(file="Metadata.csv")
 AlphaDiversity = read_csv(file="alphatotal.summary.csv")
 Mixed = inner_join(metadata, AlphaDiversity, by=c('group'))
 Mixed$Year = as.factor(Mixed$Year)
+UK = subset(Mixed, Site =="UK")
 
-alphaplot = ggplot(Mixed, aes(x = Rotation, y = invsimpson, fill= Year)) +
+alphaplot = ggplot(UK, aes(x = Treatment, y = invsimpson, fill= Year)) +
   geom_boxplot(width=0.7) +
-  facet_wrap(~Site) +
+  scale_fill_manual(values = c("#508578", "#AD6F3B")) +
   theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
         axis.text.x = element_text(colour = "black", face = "bold", size = 12), 
         legend.text = element_text(size = 20, face ="bold", colour ="black"), 
@@ -17,13 +18,13 @@ alphaplot = ggplot(Mixed, aes(x = Rotation, y = invsimpson, fill= Year)) +
         panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
         legend.key=element_blank()) +  
   labs(x = "Treatment", colour = "Treatment", y = "Inverse Simpson")+ 
-  ggtitle("Wheat Rhizosphere Alpha Diversity") + theme(plot.title = element_text(size=20, hjust = 0.5)) +
+  ggtitle("Wheat Rhizosphere Inverse Simpson") + theme(plot.title = element_text(size=20, hjust = 0.5)) +
   theme_classic()
 alphaplot
 
-richnessplot = ggplot(Mixed, aes(x = Rotation, y = sobs, fill=Year)) +
+richnessplot = ggplot(UK, aes(x = Treatment, y = shannon, fill=Year)) +
   geom_boxplot(width=0.7) +
-  facet_wrap(~Site) +
+  scale_fill_manual(values = c("#508578", "#AD6F3B")) +
   theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
         axis.text.x = element_text(colour = "black", face = "bold", size = 12), 
         legend.text = element_text(size = 20, face ="bold", colour ="black"), 
@@ -32,8 +33,8 @@ richnessplot = ggplot(Mixed, aes(x = Rotation, y = sobs, fill=Year)) +
         legend.title = element_text(size = 14, colour = "black", face = "bold"), 
         panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
         legend.key=element_blank()) +  
-  labs(x = "Treatment", colour = "Treatment", y = "Richness")+ 
-  ggtitle("Wheat Rhizosphere Richness") + theme(plot.title = element_text(size=20, hjust = 0.5)) +
+  labs(x = "Treatment", colour = "Treatment", y = "Shannon Diversity")+ 
+  ggtitle("Wheat Rhizosphere Shannon Diversity") + theme(plot.title = element_text(size=20, hjust = 0.5)) +
   theme_classic()
 richnessplot
 

@@ -148,14 +148,17 @@ Clean_pcoa <- ordinate(
 plot_ordination(
   physeq = Clean,
   ordination = Clean_pcoa,
-  color = "Crop",
-  shape = "Year",
-  title = "PCoA of Crop Effect on UK Plots"
+  color = "Year",
+  shape = "Treatment",
+  title = "PCoA of UK Plots"
 ) + 
-  scale_color_manual(values = c("#a65628", "red", "#ffae19",
-                                "#4daf4a", "#1919ff", "darkorchid3", "magenta")
+  scale_color_manual(values = c(
+    "#5F7FC7", "orange", "#508578", 
+    "#AD6F3B", "#673770","#D14285", "#652926", "#C84248", 
+    "#8569D5", "#5E738F","#D1A33D", "#8A7C64", "#599861"
+  )
   ) +
-  geom_point(aes(color = Crop), alpha = 0.7, size = 4) +
+  geom_point(aes(color = Year), alpha = 0.7, size = 4) +
   geom_point(colour = "grey90", size = 1.5) 
 
 ####Permanova####
