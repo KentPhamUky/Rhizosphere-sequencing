@@ -159,7 +159,9 @@ plot_ordination(
   )
   ) +
   geom_point(aes(color = Year), alpha = 0.7, size = 4) +
+  stat_ellipse(aes(group=Year)) +
   geom_point(colour = "grey90", size = 1.5) 
+  
 
 ####Permanova####
 Clean_bray <- phyloseq::distance(Clean, method = "bray")
