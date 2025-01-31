@@ -28,7 +28,7 @@ mothur_data <- import_mothur(mothur_shared_file = sharedfile,
 # Import sample metadata
 map <- read.csv(mapfile)
 #map = subset(map, Year == "3" | Year == "4")
-map = subset(map, Year != "0")
+map = subset(map, Year == "3")
 map$Year <- as.factor(map$Year)
 map$plot <- as.factor(map$plot)
 map <- sample_data(map)
@@ -136,7 +136,6 @@ ggplot(Clean_genus, aes(x = reorder(Sample,Cashcrop), y = Abundance, fill = Genu
   ggtitle("Genus Level Composition of Spring 2024 \n Bacterial Communities by Plot") 
 
 ####Ordination no arrows ####
-
 # Ordinate
 Clean_pcoa <- ordinate(
   physeq = Clean, 
@@ -148,9 +147,9 @@ Clean_pcoa <- ordinate(
 plot_ordination(
   physeq = Clean,
   ordination = Clean_pcoa,
-  color = "Year",
-  shape = "Treatment",
-  title = "PCoA of UK Plots"
+  color = "Rotation",
+  #shape = "Crop",
+  title = "PCoA of UK Plots Year 3"
 ) + 
   scale_color_manual(values = c(
     "#5F7FC7", "orange", "#508578", 
@@ -158,9 +157,10 @@ plot_ordination(
     "#8569D5", "#5E738F","#D1A33D", "#8A7C64", "#599861"
   )
   ) +
-  geom_point(aes(color = Year), alpha = 0.7, size = 4) +
-  stat_ellipse(aes(group=Year)) +
-  geom_point(colour = "grey90", size = 1.5) 
+  geom_point(alpha = 0.7, size = 4) +
+  scale_shape_manual(values = c(15:18)) +
+  stat_ellipse(aes(group=Rotation)) +
+  geom_point(size = 1.5) 
   
 
 ####Permanova####

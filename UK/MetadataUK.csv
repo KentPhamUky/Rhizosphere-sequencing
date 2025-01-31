@@ -1,4 +1,4 @@
-group,Treatment,Site,combined,Year,Crop,IndividualTreatment,plot,Block
+group,Rotation,Site,combined,Year,Crop,Treatment,plot,Block
 4KS101,Hemp Fiber,KS,Hemp FiberKS,3,Fiber,Fiber 1,101,1
 4KS102,Hemp Grain,KS,Hemp GrainKS,3,Grain,Grain 1,102,1
 4KS103,Hemp Grain,KS,HempGrainKS,3,Corn,Grain 2,103,1
