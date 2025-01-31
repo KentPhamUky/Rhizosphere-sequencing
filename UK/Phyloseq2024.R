@@ -28,7 +28,7 @@ mothur_data <- import_mothur(mothur_shared_file = sharedfile,
 # Import sample metadata
 map <- read.csv(mapfile)
 #map = subset(map, Year == "3" | Year == "4")
-map = subset(map, Year != "1")
+map = subset(map, Year != "0")
 map$Year <- as.factor(map$Year)
 map$plot <- as.factor(map$plot)
 map <- sample_data(map)
@@ -99,7 +99,7 @@ phylum_colors <- c(
   "#8569D5", "#5E738F","#D1A33D", "#8A7C64", "#599861"
 )
 
-Yearcomp = subset(Clean_phylum, Year == 1 | Year == 4)
+Yearcomp = subset(Clean_phylum, Year == 0 | Year == 3)
 
 ggplot(Yearcomp, aes(x = Block, y = Abundance, fill = Phylum)) + 
   facet_grid(vars(Year),vars(IndividualTreatment)) +

@@ -6,23 +6,17 @@ Mixed = inner_join(metadata, AlphaDiversity, by=c('group'))
 Mixed$Year = as.factor(Mixed$Year)
 UK = subset(Mixed, Site =="UK")
 
-alphaplot = ggplot(UK, aes(x = Treatment, y = invsimpson, fill= Year)) +
+alphaplot = ggplot(Mixed, aes(x = Treatment, y = invsimpson, fill= Year)) +
+  facet_grid(vars(),vars(Site)) +
   geom_boxplot(width=0.7) +
   scale_fill_manual(values = c("#508578", "#AD6F3B")) +
-  theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
-        axis.text.x = element_text(colour = "black", face = "bold", size = 12), 
-        legend.text = element_text(size = 20, face ="bold", colour ="black"), 
-        legend.position = "right", axis.title.y = element_text(face = "bold", size = 14), 
-        axis.title.x = element_text(face = "bold", size = 14, colour = "black"), 
-        legend.title = element_text(size = 14, colour = "black", face = "bold"), 
-        panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
-        legend.key=element_blank()) +  
   labs(x = "Treatment", colour = "Treatment", y = "Inverse Simpson")+ 
   ggtitle("Wheat Rhizosphere Inverse Simpson") + theme(plot.title = element_text(size=20, hjust = 0.5)) +
   theme_classic()
 alphaplot
 
-richnessplot = ggplot(UK, aes(x = Treatment, y = shannon, fill=Year)) +
+richnessplot = ggplot(Mixed, aes(x = Treatment, y = sobs, fill=Year)) +
+  facet_grid(vars(),vars(Site)) +
   geom_boxplot(width=0.7) +
   scale_fill_manual(values = c("#508578", "#AD6F3B")) +
   theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
@@ -32,10 +26,10 @@ richnessplot = ggplot(UK, aes(x = Treatment, y = shannon, fill=Year)) +
         axis.title.x = element_text(face = "bold", size = 14, colour = "black"), 
         legend.title = element_text(size = 14, colour = "black", face = "bold"), 
         panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
-        legend.key=element_blank()) +  
-  labs(x = "Treatment", colour = "Treatment", y = "Shannon Diversity")+ 
-  ggtitle("Wheat Rhizosphere Shannon Diversity") + theme(plot.title = element_text(size=20, hjust = 0.5)) +
-  theme_classic()
+        legend.key=element_blank()) +    
+  labs(x = "Treatment", colour = "Treatment", y = "# of OTUs")+ 
+  ggtitle("Wheat Rhizosphere Richness") + theme(plot.title = element_text(size=20, hjust = 0.5)) +
+  theme_classic() #Overwrites theme above.
 richnessplot
 
 UKtest = subset(Mixed, Site =="UK")

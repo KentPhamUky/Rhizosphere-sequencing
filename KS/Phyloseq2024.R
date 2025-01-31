@@ -96,7 +96,7 @@ phylum_colors <- c(
   "#8569D5", "#5E738F","#D1A33D", "#8A7C64", "#599861"
 )
 
-Yearcomp = subset(Clean_phylum, Year == 1 | Year == 4)
+Yearcomp = subset(Clean_phylum, Year == 0 | Year == 3)
 
 ggplot(Yearcomp, aes(x = Block, y = Abundance, fill = Phylum)) + 
   facet_grid(vars(Year),vars(IndividualTreatment)) +
