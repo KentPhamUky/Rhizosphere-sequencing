@@ -1,5 +1,5 @@
 #Phyloseq template
-#Kent Pham 2/10/2024
+#Kent Pham 2/14/2024
 
 ####Script preparation####
 if (!require("BiocManager", quietly = TRUE))                    #Checks to see if BiocManager is already downloaded. Tool is used to install bioconducter packages
