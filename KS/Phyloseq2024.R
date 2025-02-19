@@ -27,7 +27,7 @@ mothur_data <- import_mothur(mothur_shared_file = sharedfile,
                              mothur_constaxonomy_file = taxfile)
 # Import sample metadata
 map <- read.csv(mapfile)
-map = subset(map, Year != "1")
+map = subset(map, Year == "3")
 map$Year <- as.factor(map$Year)
 map <- sample_data(map)
 
@@ -144,15 +144,19 @@ plot_ordination(
   physeq = Clean,
   ordination = Clean_pcoa,
   color = "Crop",
-  shape = "Year",
-  title = "PCoA of Crop Effect on KS Plots"
+  #shape = "Treatment",
+  title = "PCoA of KS Plots Year 3"
 ) + 
-  scale_color_manual(values = c("#a65628", "red", "#ffae19",
-                                "#4daf4a", "#1919ff", "darkorchid3", "magenta")
+  scale_color_manual(values = c(
+    "#5F7FC7", "orange", "#508578", 
+    "#AD6F3B", "#673770","#D14285", "#652926", "#C84248", 
+    "#8569D5", "#5E738F","#D1A33D", "#8A7C64", "#599861"
+  )
   ) +
-  geom_point(aes(color = Crop), alpha = 0.7, size = 4) +
-  geom_point(colour = "grey90", size = 1.5) 
-
+  geom_point(alpha = 0.7, size = 4) +
+  #scale_shape_manual(values = c(9,13,15:18)) +
+  stat_ellipse(type = "norm", level=.8, aes(group=Crop)) +
+  geom_point(size = 1.5) 
 ####Permanova####
 Clean_bray <- phyloseq::distance(Clean, method = "bray")
 

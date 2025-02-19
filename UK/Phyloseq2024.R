@@ -147,8 +147,8 @@ Clean_pcoa <- ordinate(
 plot_ordination(
   physeq = Clean,
   ordination = Clean_pcoa,
-  color = "Rotation",
-  #shape = "Crop",
+  color = "Treatment",
+  #shape = "Treatment",
   title = "PCoA of UK Plots Year 3"
 ) + 
   scale_color_manual(values = c(
@@ -158,8 +158,8 @@ plot_ordination(
   )
   ) +
   geom_point(alpha = 0.7, size = 4) +
-  scale_shape_manual(values = c(15:18)) +
-  stat_ellipse(aes(group=Rotation)) +
+  scale_shape_manual(values = c(9,13,15:18)) +
+  stat_ellipse(type = "norm", level=.8, aes(group=Treatment)) +
   geom_point(size = 1.5) 
   
 
@@ -170,8 +170,8 @@ Clean_bray <- phyloseq::distance(Clean, method = "bray")
 sampledf <- data.frame(sample_data(moth_merge))
 
 # Adonis test
-adonis2(Clean_bray ~ Timtest, data = sampledf)
-pairwise.adonis2(Clean_bray ~ Crop, data = sampledf)
+adonis2(Clean_bray ~ Treatment, data = sampledf)
+pairwise.adonis2(Clean_bray ~ Treatment, data = sampledf)
 ####Ordination with arrows####
 
 bray<- phyloseq::distance(physeq = Clean, method = "bray")
