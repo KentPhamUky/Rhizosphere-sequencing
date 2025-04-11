@@ -54,7 +54,7 @@ ggplot(Veg21, aes(fill = Crop, x = Rotation, y = emmean))+
   guides(fill = guide_legend("Crop"))+
   xlab("Treatment")+ylab("Vegetative Biomass (ln adjusted)")+
   ggtitle("2021 Vegetative Biomass")+
-  geom_text(aes(label=.group), vjust = -0.6, size = 5)
+  geom_text(aes(label=.group), vjust = -0.9, hjust= .65, size = 5)
 
 
 Vegetative22 <- lme(fixed=Vegetative_transform ~ Rotation,
@@ -74,7 +74,7 @@ ggplot(Veg22, aes(fill = Crop, x = Rotation, y = emmean))+
   guides(fill = guide_legend("Crop"))+
   xlab("Treatment")+ylab("Vegetative Biomass (ln adjusted)")+
   ggtitle("2022 Vegetative Biomass")+
-  geom_text(aes(label=.group), vjust = -0.6, size = 5)
+  geom_text(aes(label=.group), vjust = -0.6, hjust= "center", size = 5)
 
 Vegetative23 <- lme(fixed=Vegetative_transform ~ Rotation,
                     data = Year3,
@@ -92,8 +92,8 @@ ggplot(Veg23, aes(fill = Crop, x = Rotation, y = emmean))+
   geom_errorbar(aes(ymin = emmean, ymax = emmean + SE), width = 0.3, position = position_dodge(0.6))+
   guides(fill = guide_legend("Crop"))+
   xlab("Treatment")+ylab("Vegetative Biomass (ln adjusted)")+
-  ggtitle("2021 Vegetative Biomass")+
-  geom_text(aes(label=.group), vjust = -0.6, size = 5)
+  ggtitle("2023 Vegetative Biomass")+
+  geom_text(aes(label=.group), vjust = -0.6, hjust= "center", size = 5)
 
 
 
@@ -123,7 +123,7 @@ ggplot(Market21, aes(fill = Crop, x = Rotation, y = emmean))+
   guides(fill = guide_legend("Crop"))+
   xlab("Treatment")+ylab("Marketable Biomass (sqrt adjusted)")+
   ggtitle("2021 Marketable Biomass")+
-  geom_text(aes(label=.group), vjust = -1.4, size = 5)
+  geom_text(aes(label=.group), vjust = -1.8, size = 5)
 
 
 Market22 <- lme(fixed=Marketable_transform ~ Rotation,
@@ -142,7 +142,7 @@ ggplot(Market22, aes(fill = Crop, x = Rotation, y = emmean))+
   guides(fill = guide_legend("Crop"))+
   xlab("Treatment")+ylab("Marketable Biomass (sqrt adjusted)")+
   ggtitle("2022 Marketable Biomass")+
-  geom_text(aes(label=.group), vjust = -1.4, size = 5)
+  geom_text(aes(label=.group), vjust = -1.2, size = 5)
 
 Market23 <- lme(fixed=Marketable_transform ~ Rotation,
                 data = Year3,
@@ -160,4 +160,4 @@ ggplot(Market23, aes(fill = Crop, x = Rotation, y = emmean))+
   guides(fill = guide_legend("Crop"))+
   xlab("Treatment")+ylab("Marketable Biomass (sqrt adjusted)")+
   ggtitle("2023 Marketable Biomass")+
-  geom_text(aes(label=.group), vjust = -1.4, size = 5)
+  geom_text(aes(label=.group), vjust = -1.2, size = 5)
