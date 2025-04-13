@@ -11,6 +11,7 @@ library(plyr)
 library(dplyr)
 library(ggpubr)
 library(car)
+library(ggpattern)
 
 data<-read_excel("Compiled Yields.xlsx")
 
@@ -28,6 +29,7 @@ shapiro.test(data$Marketable_transform)
 Year1 <- subset(data, data$Year == "2021")
 Year2 <- subset(data, data$Year == "2022")
 Year3 <- subset(data, data$Year == "2023")
+####Vegetative####
 
 Vegetative <- lme(fixed=Vegetative_transform ~ Year*Rotation,
                   data = data,
@@ -96,16 +98,9 @@ ggplot(Veg23, aes(fill = Crop, x = Rotation, y = emmean))+
   geom_text(aes(label=.group), vjust = -0.6, hjust= "center", size = 5)
 
 
+####end####
 
-
-
-
-
-
-
-
-
-
+####Marketstats####
 
 Market21 <- lme(fixed=Marketable_transform ~ Rotation,
                     data = Year1,
@@ -161,3 +156,74 @@ ggplot(Market23, aes(fill = Crop, x = Rotation, y = emmean))+
   xlab("Treatment")+ylab("Marketable Biomass (sqrt adjusted)")+
   ggtitle("2023 Marketable Biomass")+
   geom_text(aes(label=.group), vjust = -1.2, size = 5)
+
+####end####
+
+####Graph####
+
+sum2023 <- ddply(Year3, "Rotation", summarise,    #Make the summary data
+              Market = mean(Marketable),
+              Market_sd = sd(Marketable),
+              Market_se = Market_sd/sqrt(5),
+              Stover_sd = sd(Stover),
+              Stover = mean(Stover),
+              Stover_se = Stover_sd/sqrt(5),
+              )
+
+
+plotdata2021 = read_excel("Compyield2021.xlsx")
+plotdata2021$Type <- factor(plotdata$Type, levels = c("Stover", "Marketable"))
+ggplot(plotdata2021, aes(x = Rotation, y = Yield, fill = Crop, pattern = Type))+
+  theme_classic()+
+  geom_bar_pattern(
+    stat = "identity",
+    position = "stack",
+    color = "black", 
+    pattern_fill = "black",
+    pattern_angle = 45,
+    pattern_density = 0.1,
+    pattern_spacing = 0.025,
+    pattern_key_scale_factor = 0.6) + 
+  scale_fill_manual(values = c("orange", "#508578","#5F7FC7", "#AD6F3B")) +
+  scale_pattern_manual(values = c("Stover" = "none", "Marketable" = "stripe")) +
+  geom_errorbar(aes(ymin = SE_Yield, ymax = SE_Yield + SE), width = 0.3)+
+  xlab("Treatment")+ylab("Marketable Biomass")+
+  ggtitle("2021 Biomass")
+
+plotdata2022 = read_excel("Compyield2022.xlsx")
+plotdata2022$Type <- factor(plotdata$Type, levels = c("Stover", "Marketable"))
+ggplot(plotdata2022, aes(x = Rotation, y = Yield, fill = Crop, pattern = Type))+
+  theme_classic()+
+  geom_bar_pattern(
+    stat = "identity",
+    position = "stack",
+    color = "black", 
+    pattern_fill = "black",
+    pattern_angle = 45,
+    pattern_density = 0.1,
+    pattern_spacing = 0.025,
+    pattern_key_scale_factor = 0.6) + 
+  scale_fill_manual(values = c("orange", "#508578","#5F7FC7", "#AD6F3B")) +
+  scale_pattern_manual(values = c("Stover" = "none", "Marketable" = "stripe")) +
+  geom_errorbar(aes(ymin = SE_Yield, ymax = SE_Yield + SE), width = 0.3)+
+  xlab("Treatment")+ylab("Marketable Biomass")+
+  ggtitle("2022 Biomass")
+
+plotdata2023 = read_excel("Compyield2023.xlsx")
+plotdata2023$Type <- factor(plotdata$Type, levels = c("Stover", "Marketable"))
+ggplot(plotdata2023, aes(x = Rotation, y = Yield, fill = Crop, pattern = Type))+
+  theme_classic()+
+  geom_bar_pattern(
+    stat = "identity",
+    position = "stack",
+    color = "black", 
+    pattern_fill = "black",
+    pattern_angle = 45,
+    pattern_density = 0.1,
+    pattern_spacing = 0.025,
+    pattern_key_scale_factor = 0.6) + 
+  scale_fill_manual(values = c("orange", "#508578","#5F7FC7", "#AD6F3B")) +
+  scale_pattern_manual(values = c("Stover" = "none", "Marketable" = "stripe")) +
+  geom_errorbar(aes(ymin = SE_Yield, ymax = SE_Yield + SE), width = 0.3)+
+  xlab("Treatment")+ylab("Marketable Biomass")+
+  ggtitle("2023 Biomass")
