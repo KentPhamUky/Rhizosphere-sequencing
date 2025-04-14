@@ -172,7 +172,7 @@ sum2023 <- ddply(Year3, "Rotation", summarise,    #Make the summary data
 
 
 plotdata2021 = read_excel("Compyield2021.xlsx")
-plotdata2021$Type <- factor(plotdata$Type, levels = c("Stover", "Marketable"))
+plotdata2021$Type <- factor(plotdata2021$Type, levels = c("Stover", "Marketable"))
 ggplot(plotdata2021, aes(x = Rotation, y = Yield, fill = Crop, pattern = Type))+
   theme_classic()+
   geom_bar_pattern(
@@ -187,11 +187,12 @@ ggplot(plotdata2021, aes(x = Rotation, y = Yield, fill = Crop, pattern = Type))+
   scale_fill_manual(values = c("orange", "#508578","#5F7FC7", "#AD6F3B")) +
   scale_pattern_manual(values = c("Stover" = "none", "Marketable" = "stripe")) +
   geom_errorbar(aes(ymin = SE_Yield, ymax = SE_Yield + SE), width = 0.3)+
-  xlab("Treatment")+ylab("Marketable Biomass")+
-  ggtitle("2021 Biomass")
+  xlab("Treatment")+ylab(" Biomass Yield (kg/ha)")+
+  ggtitle("2021 Biomass") +
+  ylim(0, 30000)
 
 plotdata2022 = read_excel("Compyield2022.xlsx")
-plotdata2022$Type <- factor(plotdata$Type, levels = c("Stover", "Marketable"))
+plotdata2022$Type <- factor(plotdata2022$Type, levels = c("Stover", "Marketable"))
 ggplot(plotdata2022, aes(x = Rotation, y = Yield, fill = Crop, pattern = Type))+
   theme_classic()+
   geom_bar_pattern(
@@ -206,11 +207,12 @@ ggplot(plotdata2022, aes(x = Rotation, y = Yield, fill = Crop, pattern = Type))+
   scale_fill_manual(values = c("orange", "#508578","#5F7FC7", "#AD6F3B")) +
   scale_pattern_manual(values = c("Stover" = "none", "Marketable" = "stripe")) +
   geom_errorbar(aes(ymin = SE_Yield, ymax = SE_Yield + SE), width = 0.3)+
-  xlab("Treatment")+ylab("Marketable Biomass")+
-  ggtitle("2022 Biomass")
+  xlab("Treatment")+ylab("Biomass Yield (kg/ha)")+
+  ggtitle("2022 Biomass") +
+  ylim(0,30000)
 
 plotdata2023 = read_excel("Compyield2023.xlsx")
-plotdata2023$Type <- factor(plotdata$Type, levels = c("Stover", "Marketable"))
+plotdata2023$Type <- factor(plotdata2023$Type, levels = c("Stover", "Marketable"))
 ggplot(plotdata2023, aes(x = Rotation, y = Yield, fill = Crop, pattern = Type))+
   theme_classic()+
   geom_bar_pattern(
@@ -225,5 +227,6 @@ ggplot(plotdata2023, aes(x = Rotation, y = Yield, fill = Crop, pattern = Type))+
   scale_fill_manual(values = c("orange", "#508578","#5F7FC7", "#AD6F3B")) +
   scale_pattern_manual(values = c("Stover" = "none", "Marketable" = "stripe")) +
   geom_errorbar(aes(ymin = SE_Yield, ymax = SE_Yield + SE), width = 0.3)+
-  xlab("Treatment")+ylab("Marketable Biomass")+
-  ggtitle("2023 Biomass")
+  xlab("Treatment")+ylab("Biomass Yield (kg/ha)")+
+  ggtitle("2023 Biomass") +
+  ylim(0,30000)
