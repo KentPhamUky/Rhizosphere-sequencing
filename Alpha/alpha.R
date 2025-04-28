@@ -1,5 +1,6 @@
 library(tidyverse)
 library(readxl)
+library(agricolae)
 metadata = read_csv(file="Metadata.csv")
 AlphaDiversity = read_csv(file="alphatotal.summary.csv")
 Mixed = inner_join(metadata, AlphaDiversity, by=c('group'))
@@ -36,63 +37,26 @@ richnessplot = ggplot(Mixed, aes(x = Treatment, y = sobs, fill=Year)) +
 richnessplot
 
 UKtest = subset(Mixed, Site =="UK")
-
-Conventional = subset(KStest, Treatment == "Conventional")
-Fiber = subset(KStest, Treatment == "Hemp Fiber")
-Grain = subset(KStest, Treatment == "Hemp Grain")
-
-aovConvdiv = aov(invsimpson ~ Year, data = Conventional)
-summary(aovConvdiv)
-aovConvrich = aov(sobs ~ Year, data = Conventional)
-summary(aovConvrich)
-aovConvshannon = aov(shannon ~ Year, data = Conventional)
-summary(aovConvshannon)
-
-aovFibdiv = aov(invsimpson ~ Year, data = Fiber)
-summary(aovFibdiv)
-aovFibrich = aov(sobs ~ Year, data = Fiber)
-summary(aovFibrich)
-aovFibshannon = aov(shannon ~ Year, data = Fiber)
-summary(aovFibshannon)
-
-aovGraindiv = aov(invsimpson ~ Year, data = Grain)
-summary(aovGraindiv)
-aovGrainrich = aov(sobs ~ Year, data = Grain)
-summary(aovGrainrich)
-aovGrainshannon = aov(shannon ~ Year, data = Grain)
-summary(aovGrainshannon)
-
-
-Year0 = subset(KStest, Year == "0")
-Year3 = subset(KStest, Year == "3")
-
-aovY0div = aov(invsimpson ~ Treatment, data=Year0)
-summary(aovY0div)
-aovY0rich = aov(sobs~Treatment, data=Year0)
-summary(aovY0rich)
-aovY0shannon = aov(shannon ~ Treatment, data =Year0)
-summary(aovY0shannon)
-
-aovY3div = aov(invsimpson ~ Treatment, data=Year3)
-summary(aovY3div)
-aovY3rich = aov(sobs~Treatment, data=Year3)
-summary(aovY3rich)
-aovY3shannon = aov(sobs~Treatment, data=Year3)
-summary(aovY3shannon)
-
-
 KStest = subset(Mixed, Site =="KS")
 
-Treatmentsobs = aov(sobs ~ Treatment, data = UKtest)
-summary(Treatmentsobs)
-Treatmentinv = aov(invsimpson ~ Treatment, data = UKtest)
-summary(Treatmentinv)
-Treatmentshannon = aov(shannon ~ Treatment, data = UKtest)
-summary(Treatmentshannon)
 
-Yearsobs = aov(sobs ~ Year, data = UKtest)
-summary(Yearsobs)
-Yearinv = aov(invsimpson ~ Year, data = UKtest)
-summary(Yearinv)
-Yearshannon = aov(shannon ~ Year, data = UKtest)
-summary(Yearshannon)
+UKinvsimp = aov(invsimpson ~ Treatment * Year, data=UKtest)
+summary(UKinvsimp)
+UKshannon = aov(shannon ~ Treatment * Year, data=UKtest)
+summary(UKshannon)
+UKrich = aov(sobs ~ Treatment * Year, data=UKtest)
+summary(UKrich)
+
+KSinvsimp = aov(invsimpson ~ Treatment * Year, data=KStest)
+summary(KSinvsimp)
+KSshannon = aov(shannon ~ Treatment * Year, data=KStest)
+summary(KSshannon)
+KSrich = aov(sobs ~ Treatment * Year, data=KStest)
+summary(KSrich)
+
+
+lsd=LSD.test(UKrich, "Year")
+print(lsd)
+
+
+
