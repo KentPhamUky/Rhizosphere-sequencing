@@ -27,6 +27,7 @@ mothur_data <- import_mothur(mothur_shared_file = sharedfile,
                              mothur_constaxonomy_file = taxfile)
 # Import sample metadata
 map <- read.csv(mapfile)
+map = subset(map, Site == "KS")
 map = subset(map, Year == "3")
 map$Year <- as.factor(map$Year)
 map <- sample_data(map)
@@ -140,12 +141,12 @@ Clean_pcoa <- ordinate(
 )
 
 # Plot 
-plot_ordination(
+Year3plot = plot_ordination(
   physeq = Clean,
   ordination = Clean_pcoa,
   color = "Crop",
-  #shape = "Treatment",
-  title = "PCoA of KS Plots Year 3"
+  shape = "Rotation",
+  title = "PCoA of KS Rhizosphere Communities in Year 3"
 ) + 
   scale_color_manual(values = c(
     "#5F7FC7", "orange", "#508578", 
@@ -154,9 +155,18 @@ plot_ordination(
   )
   ) +
   geom_point(alpha = 0.7, size = 4) +
-  #scale_shape_manual(values = c(9,13,15:18)) +
-  stat_ellipse(type = "norm", level=.8, aes(group=Crop)) +
-  geom_point(size = 1.5) 
+  #labs(tag="A") +
+  theme(plot.title = element_text(hjust = 0.5), plot.tag = element_text())
+Year3plot
+
+
+combine = ggarrange(Year1plot, Year2plot, Year3plot,
+                    common.legend= TRUE,
+                    legend="right",
+                    labels = c("A", "B","C"),
+                    ncol = 2, nrow = 2)
+combine
+
 ####Permanova####
 Clean_bray <- phyloseq::distance(Clean, method = "bray")
 
@@ -164,8 +174,8 @@ Clean_bray <- phyloseq::distance(Clean, method = "bray")
 sampledf <- data.frame(sample_data(moth_merge))
 
 # Adonis test
-adonis2(Clean_bray ~ Timtest, data = sampledf)
-pairwise.adonis2(Clean_bray ~ Cashcrop, data = sampledf)
+adonis2(Clean_bray ~ Rotation*Crop, data = sampledf)
+pairwise.adonis2(Clean_bray ~ Year*Rotation, data = sampledf)
 
 ####Ordination with arrows####
 

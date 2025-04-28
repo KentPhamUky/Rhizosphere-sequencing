@@ -1,0 +1,45 @@
+Windows version
+
+Using Boost
+mothur v.1.48.0
+Last updated: 5/20/22
+by
+Patrick D. Schloss
+
+Department of Microbiology & Immunology
+
+University of Michigan
+http://www.mothur.org
+
+When using, please cite:
+Schloss, P.D., et al., Introducing mothur: Open-source, platform-independent, community-supported software for describing and comparing microbial communities. Appl Environ Microbiol, 2009. 75(23):7537-41.
+
+Distributed under the GNU General Public License
+
+Type 'help()' for information on the commands that are available
+
+For questions and analysis support, please visit our forum at https://forum.mothur.org
+
+Type 'quit()' to exit program
+
+[NOTE]: Setting random seed to 19760620.
+
+Interactive Mode
+
+
+
+mothur > 
+lefse(shared=KS.final.opti_mcc.0.03.subsample.shared, design=KSmothur.design)
+
+You did not provide a class, using Year.
+
+
+Comparing 3-0:
+0.03
+
+Number of significantly discriminative features: 2249 ( 4106 ) before internal wilcoxon.
+Number of discriminative features with abs LDA score > 2 : 453.
+
+Output File Names: 
+KS.final.opti_mcc.0.03.subsample.0.03.lefse_summary
+
