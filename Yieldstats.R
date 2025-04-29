@@ -101,24 +101,35 @@ ggplot(Veg23, aes(fill = Crop, x = Rotation, y = emmean))+
 ####end####
 
 ####Marketstats####
+Market <- lm(Marketable_transform ~ Year*Cash_Crop,
+                data = data,
+                na.action = na.omit)
+anova(Market)
+Marketmeans <-emmeans(Market, ~ (Rotation))
+Markettest=multcomp::cld(Marketmeans, Letters=LETTERS)
+Markettest
 
-Market21 <- lme(fixed=Marketable_transform ~ Rotation,
+
+
+
+Market21 <- lm(Marketable_transform ~ Treatment,
                     data = Year1,
-                    random = ~1|Plot,
                     na.action = na.omit)
-Marketmeans21 <-emmeans(Market21, ~ (Rotation))
-Market21=multcomp::cld(Marketmeans21, Letters=LETTERS)
-Market21$Crop= c("Grain", "Soybean", "Soybean", "Fiber", "Corn", "Corn")
+anova(Market21)
 
-ggplot(Market21, aes(fill = Crop, x = Rotation, y = emmean))+
-  theme_classic()+
-  geom_bar(stat="identity", width = 0.6, position = "dodge", col = "black")+
-  scale_fill_manual(values = c("orange", "#508578","#5F7FC7", "#AD6F3B")) +
-  geom_errorbar(aes(ymin = emmean, ymax = emmean + SE), width = 0.3, position = position_dodge(0.6))+
-  guides(fill = guide_legend("Crop"))+
-  xlab("Treatment")+ylab("Marketable Biomass (sqrt adjusted)")+
-  ggtitle("2021 Marketable Biomass")+
-  geom_text(aes(label=.group), vjust = -1.8, size = 5)
+Marketmeans21 <-emmeans(Market21, ~ (Rotation))
+emm = emmeans(Market21, ~Treatment)
+multcomp::cld(emm, Letters=LETTERS)
+Market21=multcomp::cld(Marketmeans21, Letters=LETTERS)
+
+
+
+
+
+
+
+
+
 
 
 Market22 <- lme(fixed=Marketable_transform ~ Rotation,
@@ -145,6 +156,7 @@ Market23 <- lme(fixed=Marketable_transform ~ Rotation,
                 na.action = na.omit)
 Marketmeans23 <-emmeans(Market23, ~ (Rotation))
 Market23=multcomp::cld(Marketmeans23, Letters=LETTERS)
+
 Market23$Crop= c("Grain", "Soybean", "Soybean", "Fiber", "Corn", "Corn")
 
 ggplot(Market23, aes(fill = Crop, x = Rotation, y = emmean))+
