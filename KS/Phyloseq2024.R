@@ -100,13 +100,13 @@ phylum_colors <- c(
 Yearcomp = subset(Clean_phylum, Year == 0 | Year == 3)
 
 ggplot(Yearcomp, aes(x = Block, y = Abundance, fill = Phylum)) + 
-  facet_grid(vars(Year),vars(IndividualTreatment)) +
+  facet_grid(vars(Year),vars(Treatment)) +
   geom_bar(stat = "identity", width = .85) +
   scale_fill_manual(values = phylum_colors) +
   theme(axis.title.x = element_blank(), axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
   guides(fill = guide_legend(reverse = TRUE, keywidth = 1, keyheight = 1)) +
   ylab("Relative Abundance (Phyla > 1%) \n") +
-  ggtitle("KS Phylum Composition \nBacterial Communities by Treatment") 
+  ggtitle("KS Bacterial Communities by Treatment and Year") 
 ####Genus Graph####
 
 Clean_genus <- Clean %>%

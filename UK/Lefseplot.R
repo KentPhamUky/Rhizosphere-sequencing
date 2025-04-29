@@ -15,7 +15,7 @@ plot = ggplot(lefse, aes(x=fct_reorder(OTU, Year), y=LDA, fill = Year)) +
   geom_bar(stat = "identity") +
   coord_flip() +
   scale_fill_manual(name = "Change from\nYear 0 to Year 3",values = c("#508578", "#AD6F3B")) +
-  ggtitle("LEFSE Analysis of UK Rhizosphere Communities")+ labs(x="OTU")+
+  ggtitle("LEfSe of UK Rhizosphere Communities")+ labs(x="OTU")+
   theme_classic() +
   annotate("text", x = 1, 0.1, hjust =0, label = "c_Spartobacteria")+
   annotate("text", x = 2, 0.1, hjust =0, label = "g_Pseudarthrobacter")+

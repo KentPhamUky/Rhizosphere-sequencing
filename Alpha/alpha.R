@@ -13,6 +13,7 @@ Inversesimpplot = ggplot(Mixed, aes(x = Treatment, y = invsimpson, fill= Year)) 
   scale_fill_manual(values = c("#508578", "#AD6F3B")) +
   labs(x = "Treatment", colour = "Treatment", y = "Inverse Simpson")+ 
   ggtitle("Wheat Rhizosphere Inverse Simpson") + theme(plot.title = element_text(size=20, hjust = 0.5)) +
+  annotate("segment", x = 0.5, xend = 1.5, y = 400,colour = "black") +
   theme_classic()
 Inversesimpplot
 
