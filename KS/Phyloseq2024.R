@@ -98,9 +98,14 @@ phylum_colors <- c(
 )
 
 Yearcomp = subset(Clean_phylum, Year == 0 | Year == 3)
-
+for(i in 1:length(Yearcomp$Year)){
+  if(Yearcomp$Year[i] == 0)
+    Yearcomp$Years[i] = "Year 0"
+  else
+    Yearcomp$Years[i] = "Year 3"
+}
 ggplot(Yearcomp, aes(x = Block, y = Abundance, fill = Phylum)) + 
-  facet_grid(vars(Year),vars(Treatment)) +
+  facet_grid(vars(Years),vars(Treatment)) +
   geom_bar(stat = "identity", width = .85) +
   scale_fill_manual(values = phylum_colors) +
   theme(axis.title.x = element_blank(), axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
