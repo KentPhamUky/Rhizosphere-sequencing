@@ -109,7 +109,7 @@ for(i in 1:length(Yearcomp$Year)){
     Yearcomp$Years[i] = "Year 3"
 }
   
-ggplot(Yearcomp, aes(x = Block, y = Abundance, fill = Phylum)) + 
+plotuk = ggplot(Yearcomp, aes(x = Block, y = Abundance, fill = Phylum)) + 
   facet_grid(vars(Years),vars(Treatment)) +
   geom_bar(stat = "identity", width = .85) +
   scale_fill_manual(values = phylum_colors) +
@@ -255,3 +255,12 @@ cap_plot +
     data = arrowdf, 
     show.legend = FALSE
   )
+
+
+combine = ggarrange(plotKS, plotuk,
+                    common.legend= TRUE,
+                    legend="right",
+                    labels = c("A", "B"),
+                    ncol = 1, nrow = 2)
+
+combine

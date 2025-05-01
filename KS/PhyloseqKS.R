@@ -4,7 +4,7 @@ if (!require("BiocManager", quietly = TRUE))
 BiocManager::install("phyloseq")
 BiocManager::install("microbiome")
 install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
-
+setwd("D:/GitHub/Rhizosphere-sequencing/KS")
 library(ggplot2)
 library(vegan)
 library(plyr)
@@ -104,7 +104,7 @@ for(i in 1:length(Yearcomp$Year)){
   else
     Yearcomp$Years[i] = "Year 3"
 }
-ggplot(Yearcomp, aes(x = Block, y = Abundance, fill = Phylum)) + 
+plotKS= ggplot(Yearcomp, aes(x = Block, y = Abundance, fill = Phylum)) + 
   facet_grid(vars(Years),vars(Treatment)) +
   geom_bar(stat = "identity", width = .85) +
   scale_fill_manual(values = phylum_colors) +

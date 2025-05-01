@@ -2,7 +2,7 @@
 library(tidyverse)
 library(readxl)
 
-
+setwd("D:/GitHub/Rhizosphere-sequencing/KS")
 lefse <- read_excel(path="Lefsefigure.xlsx")
 
 lefse$Taxonomy <- factor(lefse$Taxonomy, levels = lefse$Taxonomy)
@@ -11,7 +11,7 @@ lefse$Taxonomy <- factor(lefse$Taxonomy, levels = lefse$Taxonomy)
 #scale_fill_manual(values = c("#508578", "#AD6F3B")) +
 
 
-plot = ggplot(lefse, aes(x=fct_reorder(OTU, Year), y=LDA, fill = Year)) + 
+plotKS = ggplot(lefse, aes(x=fct_reorder(OTU, Year), y=LDA, fill = Year)) + 
   geom_bar(stat = "identity") +
   coord_flip() +
   scale_fill_manual(name = "Change from\nYear 0 to Year 3",values = c("#508578", "#AD6F3B")) +
@@ -38,5 +38,5 @@ plot = ggplot(lefse, aes(x=fct_reorder(OTU, Year), y=LDA, fill = Year)) +
   annotate("text", x = 19, -0.1, hjust =1, label = "Unclassified")+
   annotate("text", x = 20, -0.1, hjust =1, label = "g_Solirubrobacter")
   
-plot
+plotKS
 

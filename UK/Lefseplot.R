@@ -40,3 +40,12 @@ plot = ggplot(lefse, aes(x=fct_reorder(OTU, Year), y=LDA, fill = Year)) +
   
 plot
 
+
+combine = ggarrange(plotKS, plot,
+                         common.legend= TRUE,
+                         legend="right",
+                        labels = c("A", "B"),
+                         ncol = 2, nrow = 1)
+
+combine
+
